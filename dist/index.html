@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>TUTManage</title>
+        <link rel="stylesheet" href="./index.css" />
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:400" rel="stylesheet" />
+        <script src="./index.js" defer></script>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+            crossorigin="anonymous"
+        />
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"
+        ></script>
+    </head>
+    <body>
+        <div class="img-cover">
+            <img src="https://getwallpapers.com/wallpaper/full/c/9/c/192782.jpg" />
+            <div class="img-cover-bottom"></div>
+        </div>
+        <div class="container pt-5 pb-4">
+            <h1>CLASS CIRRICULUM</h1>
+        </div>
+        <div class="container d-flex p-2 align-items-center">
+            <button
+                type="button"
+                class="btn btn-primary mx-2"
+                data-bs-toggle="modal"
+                data-bs-target="#refreshModal"
+            >
+                Refetch Data
+            </button>
+            <div class="modal fade" id="refreshModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5">Update the cirriculum data</h1>
+                            <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"
+                            ></button>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="mb-3">
+                                    <label for="username" class="col-form-label">Username:</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="username"
+                                        value="g243397"
+                                    />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password" class="col-form-label">Password:</label>
+                                    <input
+                                        type="password"
+                                        class="form-control"
+                                        id="password"
+                                        value="Birigu_123$%"
+                                    />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="onetimepass" class="col-form-label"
+                                        >One Time Pass (if using different network):</label
+                                    >
+                                    <input type="text" class="form-control" id="onetimepass" />
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                Close
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-primary"
+                                onclick="getClasses(event)"
+                                data-bs-dismiss="modal"
+                            >
+                                Fetch
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <h3 class="m-0">Total credits: <span id="total-credits"></span></h3>
+        </div>
+        <div class="container p-2">
+            <table class="table table-striped table-primary" id="cirriculum-table">
+                <thead>
+                    <tr>
+                        <th style="border-top-left-radius: 1rem;">CLASS TIME \ DAYS</th>
+                        <th>Monday</th>
+                        <th>Tuesday</th>
+                        <th>Wednesday</th>
+                        <th>Thursday</th>
+                        <th style="border-top-right-radius: 1rem;">Friday</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <div class="modal fade" id="editModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="edit-modal-title">Class extras</h1>
+                            <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"
+                            ></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="text" id="edit-modal-i" hidden />
+                            <input type="text" id="edit-modal-y" hidden />
+                            <input type="text" id="edit-modal-s" hidden />
+                            <div class="mb-3">
+                                <label for="classroom-link" class="col-form-label"
+                                    >Classroom Link:</label
+                                >
+                                <input type="text" class="form-control" id="classroom-link" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="class-note" class="col-form-label">Note:</label>
+                                <textarea class="form-control" id="class-note"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                Close
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-primary"
+                                onclick="saveClassDataFromUserInput()"
+                            >
+                                Save changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="py back-darker">
+            <div class="container">
+                <h1>RECENT POSTS</h1>
+            </div>
+            <div class="container"></div>
+            <div class="text-center container"></div>
+        </div>
+        <div class="py container text-center">
+            <h3>© 2024 Birigu</h3>
+        </div>
+    </body>
+</html>

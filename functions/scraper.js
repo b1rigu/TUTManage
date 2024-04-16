@@ -7,31 +7,35 @@ const loginWithUserPass = async (page, username, password) => {
     await page.type("#username", username);
     await page.type("#password", password);
     await page.click(loginBtnSelector);
+    await page.waitForSelector("body");
+
+    const error = await page.$(".form-error");
+    if (error) {
+        return false;
+    }
+
+    return true;
 };
 
 const checkIfOneTimePassNeeded = async (page, oneTimePass) => {
-    try {
-        await page.waitForNavigation();
-        const oneTimeBtn = "button[name='_eventId_ChooseExternal']";
-        await page.waitForSelector(oneTimeBtn, { timeout: 500 });
+    const oneTimeBtn = "button[name='_eventId_ChooseExternal']";
+    if (await page.$(oneTimeBtn)) {
         await page.click(oneTimeBtn);
-        const loginBtnSelector = "#login";
-
-        try {
-            await page.$("#error_msg1");
+        await page.waitForSelector("body");
+        if (await page.$("#error_msg1")) {
             await page.click("a:has-text('Re-Login')");
-
-            await page.waitForSelector(loginBtnSelector);
-            await page.type("input[name='candr']", oneTimePass);
-            await page.click(loginBtnSelector);
-
-            return;
-        } catch {}
-
+        }
         await page.waitForSelector(loginBtnSelector);
         await page.type("input[name='candr']", oneTimePass);
         await page.click(loginBtnSelector);
-    } catch (error) {}
+        await page.waitForSelector("body");
+
+        if (await page.$("#error_msg1")) {
+            return false;
+        }
+    }
+
+    return true;
 };
 
 export const getClasses = async (username, password, oneTimePass) => {
@@ -44,9 +48,25 @@ export const getClasses = async (username, password, oneTimePass) => {
     await page.waitForSelector(goToLoginSelector);
     await page.click(goToLoginSelector);
 
-    await loginWithUserPass(page, username, password);
+    const userPassLoginSuccessful = await loginWithUserPass(page, username, password);
+    if (!userPassLoginSuccessful) {
+        return {
+            status: "error",
+            message: "Username or Password was wrong",
+            data: "",
+        };
+    }
 
-    await checkIfOneTimePassNeeded(page, oneTimePass);
+    const oneTimeLoginSuccessful = await checkIfOneTimePassNeeded(page, oneTimePass);
+    if (!oneTimeLoginSuccessful) {
+        return {
+            status: "error",
+            message: "OneTimePass was wrong",
+            data: "",
+        };
+    }
+
+    // Entered the main page
 
     const header1Sel = "#ctl00_bhHeader_ctl16_lnk";
     await page.waitForSelector(header1Sel);
@@ -55,8 +75,7 @@ export const getClasses = async (username, password, oneTimePass) => {
     const header2Sel = "#ctl00_bhHeader_ctl28_lnk";
     await page.waitForSelector(header2Sel);
     await page.click(header2Sel);
-
-    await page.waitForNavigation();
+    await page.waitForSelector("body");
 
     // Entered the register page
 
@@ -134,5 +153,9 @@ export const getClasses = async (username, password, oneTimePass) => {
     });
     await browser.close();
 
-    return allClasses;
+    return {
+        status: "success",
+        message: "",
+        data: allClasses,
+    };
 };

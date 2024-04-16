@@ -85,6 +85,7 @@ async function getClasses(e) {
     e.preventDefault();
     const table = document.getElementById("cirriculum-table").querySelector("tbody");
     table.innerHTML = "";
+    document.getElementById("total-credits").innerHTML = "0";
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
     const onetimepass = document.getElementById("onetimepass").value;
@@ -98,9 +99,15 @@ async function getClasses(e) {
             method: "GET",
         }
     );
-    const data = await res.json();
-    saveClassDataToLocalStorage(data);
-    addData(data);
+
+    const resJson = await res.json();
+    if (resJson.status == "success") {
+        const data = resJson.data;
+        saveClassDataToLocalStorage(data);
+        addData(data);
+    } else {
+        alert(resJson.message);
+    }
 }
 
 function saveClassDataToLocalStorage(data) {

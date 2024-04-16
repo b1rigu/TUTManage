@@ -11,8 +11,9 @@ const loginWithUserPass = async (page, username, password) => {
 
 const checkIfOneTimePassNeeded = async (page, oneTimePass) => {
     try {
+        await page.waitForNavigation();
         const oneTimeBtn = "button[name='_eventId_ChooseExternal']";
-        await page.waitForSelector(oneTimeBtn);
+        await page.waitForSelector(oneTimeBtn, { timeout: 500 });
         await page.click(oneTimeBtn);
         const loginBtnSelector = "#login";
 
@@ -47,8 +48,6 @@ export const getClasses = async (username, password, oneTimePass) => {
 
     await checkIfOneTimePassNeeded(page, oneTimePass);
 
-    await page.screenshot({ path: "onetimedone.png" });
-
     const header1Sel = "#ctl00_bhHeader_ctl16_lnk";
     await page.waitForSelector(header1Sel);
     await page.click(header1Sel);
@@ -68,6 +67,10 @@ export const getClasses = async (username, password, oneTimePass) => {
         for (let period = 1; period <= periodCount; period++) {
             let classesOnSinglePeriodByDays = [];
             for (let index = 0; index < days.length; index++) {
+                const classIdSpan1 = document.getElementById(
+                    `ctl00_phContents_ucRegistEdit_reTable_ttTable_lct${days[index]}${period}_ctl00_lblLctCd`
+                );
+
                 const classNameSpan1 = document.getElementById(
                     `ctl00_phContents_ucRegistEdit_reTable_ttTable_lct${days[index]}${period}_ctl00_lblSbjName`
                 );
@@ -83,6 +86,10 @@ export const getClasses = async (username, password, oneTimePass) => {
 
                 const classCredit1 = document.getElementById(
                     `ctl00_phContents_ucRegistEdit_reTable_ttTable_lct${days[index]}${period}_ctl00_lblCredit`
+                );
+
+                const classIdSpan2 = document.getElementById(
+                    `ctl00_phContents_ucRegistEdit_reTable_ttTable_lct${days[index]}${period}_ctl02_lblLctCd`
                 );
 
                 const classNameSpan2 = document.getElementById(
@@ -103,6 +110,7 @@ export const getClasses = async (username, password, oneTimePass) => {
                 );
 
                 classesOnSinglePeriodByDays.push({
+                    classId: classIdSpan1 ? classIdSpan1.textContent : "",
                     className: classNameSpan1 ? classNameSpan1.textContent : "",
                     classLink: classLink1,
                     classCredit: classCredit1
@@ -110,6 +118,7 @@ export const getClasses = async (username, password, oneTimePass) => {
                         : "",
                     classClassroomLink: "",
                     classNote: "",
+                    secondHalfClassId: classIdSpan2 ? classIdSpan2.textContent : "",
                     secondHalfClassName: classNameSpan2 ? classNameSpan2.textContent : "",
                     secondHalfClassLink: classLink2,
                     secondHalfClassCredit: classCredit2

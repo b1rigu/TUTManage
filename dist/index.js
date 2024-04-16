@@ -13,6 +13,13 @@ const periods = [
     if (classData) {
         addData(classData);
     }
+
+    const username = localStorage.getItem("username");
+    const password = localStorage.getItem("password");
+    if (username && password) {
+        document.getElementById("username").value = username;
+        document.getElementById("password").value = password;
+    }
 })();
 
 function addData(data) {
@@ -81,6 +88,9 @@ async function getClasses(e) {
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
     const onetimepass = document.getElementById("onetimepass").value;
+    localStorage.setItem("username", username);
+    localStorage.setItem("password", password);
+
     const res = await fetch(
         baseUrl +
             `get-classes?username=${username}&password=${password}&onetimepass=${onetimepass}`,
@@ -94,6 +104,39 @@ async function getClasses(e) {
 }
 
 function saveClassDataToLocalStorage(data) {
+    data.forEach((period, i) => {
+        period.forEach((singleClass, y) => {
+            data[i][y].classId = singleClass.classId.replace(/\s/g, "");
+        });
+    });
+    const existingClassData = getClassDataFromLocalStorage();
+
+    if (!existingClassData) {
+        localStorage.setItem("classData", JSON.stringify(data));
+        return;
+    }
+
+    const existingClassDataFlattened = existingClassData
+        .flat()
+        .filter((existingClass) => existingClass.classId != "");
+
+    data.forEach((period, i) => {
+        period.forEach((singleClass, y) => {
+            if (singleClass.classId != "") {
+                const existingClass = existingClassDataFlattened.find(
+                    (existingClass) => existingClass.classId == singleClass.classId
+                );
+                if (existingClass) {
+                    data[i][y].classClassroomLink = existingClass.classClassroomLink;
+                    data[i][y].classNote = existingClass.classNote;
+                    data[i][y].secondHalfClassClassroomLink =
+                        existingClass.secondHalfClassClassroomLink;
+                    data[i][y].secondHalfClassNote = existingClass.secondHalfClassNote;
+                }
+            }
+        });
+    });
+
     localStorage.setItem("classData", JSON.stringify(data));
 }
 

@@ -107,6 +107,7 @@ function saveClassDataToLocalStorage(data) {
     data.forEach((period, i) => {
         period.forEach((singleClass, y) => {
             data[i][y].classId = singleClass.classId.replace(/\s/g, "");
+            data[i][y].secondHalfClassId = singleClass.secondHalfClassId.replace(/\s/g, "");
         });
     });
     const existingClassData = getClassDataFromLocalStorage();
@@ -116,9 +117,7 @@ function saveClassDataToLocalStorage(data) {
         return;
     }
 
-    const existingClassDataFlattened = existingClassData
-        .flat()
-        .filter((existingClass) => existingClass.classId != "");
+    const existingClassDataFlattened = existingClassData.flat();
 
     data.forEach((period, i) => {
         period.forEach((singleClass, y) => {
@@ -129,9 +128,18 @@ function saveClassDataToLocalStorage(data) {
                 if (existingClass) {
                     data[i][y].classClassroomLink = existingClass.classClassroomLink;
                     data[i][y].classNote = existingClass.classNote;
+                }
+            }
+
+            if (singleClass.secondHalfClassId != "") {
+                const existingClass2 = existingClass2DataFlattened.find(
+                    (existingClass2) =>
+                        existingClass2.secondHalfClassId == singleClass.secondHalfClassId
+                );
+                if (existingClass2) {
                     data[i][y].secondHalfClassClassroomLink =
-                        existingClass.secondHalfClassClassroomLink;
-                    data[i][y].secondHalfClassNote = existingClass.secondHalfClassNote;
+                        existingClass2.secondHalfClassClassroomLink;
+                    data[i][y].secondHalfClassNote = existingClass2.secondHalfClassNote;
                 }
             }
         });

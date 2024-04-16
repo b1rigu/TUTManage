@@ -20,6 +20,10 @@ const loginWithUserPass = async (page, username, password) => {
 const checkIfOneTimePassNeeded = async (page, oneTimePass) => {
     const oneTimeBtn = "button[name='_eventId_ChooseExternal']";
     if (await page.$(oneTimeBtn)) {
+        if (oneTimePass == "") {
+            return false;
+        }
+
         await page.click(oneTimeBtn);
         await page.waitForSelector("body");
         if (await page.$("#error_msg1")) {
@@ -61,7 +65,7 @@ export const getClasses = async (username, password, oneTimePass) => {
     if (!oneTimeLoginSuccessful) {
         return {
             status: "error",
-            message: "OneTimePass was wrong",
+            message: "OneTimePass was wrong or required",
             data: "",
         };
     }

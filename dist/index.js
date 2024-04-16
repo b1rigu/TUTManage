@@ -41,7 +41,7 @@ function addData(data) {
                     : "";
             const cellText =
                 singleClass.classCredit.length == 0
-                    ? ""
+                    ? `<div class="row-box-lighter"><span class="text-body-secondary">First half of semester not selected</span></div>`
                     : `<div class="row-box">
                             <a href="${singleClass.classLink}" target="_blank">
                                 <h5>${singleClass.className}</h5>
@@ -52,7 +52,7 @@ function addData(data) {
                     </div>`;
             const cellText2 =
                 singleClass.secondHalfClassCredit.length == 0
-                    ? ""
+                    ? `<div class="row-box-lighter"><span class="text-body-secondary">Second half of semester not selected</span></div>`
                     : `<div class="row-box">
                             <a href="${singleClass.secondHalfClassLink}" target="_blank">
                                 <h5>${singleClass.secondHalfClassName}</h5>
@@ -165,7 +165,7 @@ function saveClassDataFromUserInput() {
         classData[iInput][yInput].secondHalfClassNote = noteInput;
     }
 
-    localStorage.setItem("classData", JSON.stringify(data));
+    localStorage.setItem("classData", JSON.stringify(classData));
     location.reload();
 }
 

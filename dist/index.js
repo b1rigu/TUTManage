@@ -165,7 +165,7 @@ function saveClassDataFromUserInput() {
         classData[iInput][yInput].secondHalfClassNote = noteInput;
     }
 
-    saveClassDataToLocalStorage(classData);
+    localStorage.setItem("classData", JSON.stringify(data));
     location.reload();
 }
 

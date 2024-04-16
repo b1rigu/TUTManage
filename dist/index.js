@@ -132,7 +132,7 @@ function saveClassDataToLocalStorage(data) {
             }
 
             if (singleClass.secondHalfClassId != "") {
-                const existingClass2 = existingClass2DataFlattened.find(
+                const existingClass2 = existingClassDataFlattened.find(
                     (existingClass2) =>
                         existingClass2.secondHalfClassId == singleClass.secondHalfClassId
                 );

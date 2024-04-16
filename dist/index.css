@@ -43,7 +43,7 @@ img {
 
 .row-box {
     background-color: rgba(0, 0, 0, 0.7);
-    padding: 0.5rem;
+    padding: 0.75rem;
     border-radius: 1rem;
     color: white;
     margin: 0.25rem;
@@ -51,7 +51,7 @@ img {
 
 .row-box-lighter {
     background-color: rgba(0, 0, 0, 0.3);
-    padding: 0.5rem;
+    padding: 0.75rem;
     border-radius: 1rem;
     color: white;
     margin: 0.25rem;

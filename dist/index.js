@@ -40,7 +40,7 @@ function addData(data) {
                     ? `<a href="${singleClass.secondHalfClassClassroomLink}" target="_blank">Classroom</a>`
                     : "";
             const cellText =
-                singleClass.classCredit.length == 0
+                singleClass.classId.trim().length > 0 == ""
                     ? `<div class="row-box-lighter"><span class="text-body-secondary">First half of semester not selected</span></div>`
                     : `<div class="row-box">
                             <a href="${singleClass.classLink}" target="_blank">
@@ -51,7 +51,7 @@ function addData(data) {
                             <button type="button" class="btn btn-secondary w-100" data-bs-toggle="modal" data-bs-target="#editModal" data-bs-i="${i}" data-bs-y="${y}" data-bs-s="false">Extras</button>
                     </div>`;
             const cellText2 =
-                singleClass.secondHalfClassCredit.length == 0
+                singleClass.secondHalfClassId.trim().length > 0 == ""
                     ? `<div class="row-box-lighter"><span class="text-body-secondary">Second half of semester not selected</span></div>`
                     : `<div class="row-box">
                             <a href="${singleClass.secondHalfClassLink}" target="_blank">

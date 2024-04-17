@@ -133,19 +133,19 @@ export const getClasses = async (username, password, oneTimePass) => {
                 );
 
                 classesOnSinglePeriodByDays.push({
-                    classId: classIdSpan1 ? classIdSpan1.textContent : "",
-                    className: classNameSpan1 ? classNameSpan1.textContent : "",
+                    classId: classIdSpan1 ? classIdSpan1.textContent.trim() : "",
+                    className: classNameSpan1 ? classNameSpan1.textContent.trim() : "",
                     classLink: classLink1,
                     classCredit: classCredit1
-                        ? classCredit1.textContent.replace(/[^0-9]/g, "")
+                        ? classCredit1.textContent.trim().replace(/[^0-9]/g, "")
                         : "",
                     classClassroomLink: "",
                     classNote: "",
-                    secondHalfClassId: classIdSpan2 ? classIdSpan2.textContent : "",
-                    secondHalfClassName: classNameSpan2 ? classNameSpan2.textContent : "",
+                    secondHalfClassId: classIdSpan2 ? classIdSpan2.textContent.trim() : "",
+                    secondHalfClassName: classNameSpan2 ? classNameSpan2.textContent.trim() : "",
                     secondHalfClassLink: classLink2,
                     secondHalfClassCredit: classCredit2
-                        ? classCredit2.textContent.replace(/[^0-9]/g, "")
+                        ? classCredit2.textContent.trim().replace(/[^0-9]/g, "")
                         : "",
                     secondHalfClassClassroomLink: "",
                     secondHalfClassNote: "",

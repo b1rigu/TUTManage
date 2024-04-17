@@ -40,7 +40,7 @@ function addData(data) {
                     ? `<a href="${singleClass.secondHalfClassClassroomLink}" target="_blank">Classroom</a>`
                     : "";
             const cellText =
-                singleClass.classId.trim().length > 0 == ""
+                singleClass.classId.length > 0 == ""
                     ? `<div class="row-box-lighter"><span class="text-body-secondary">First half of semester not selected</span></div>`
                     : `<div class="row-box">
                             <a href="${singleClass.classLink}" target="_blank">
@@ -51,7 +51,7 @@ function addData(data) {
                             <button type="button" class="btn btn-secondary w-100" data-bs-toggle="modal" data-bs-target="#editModal" data-bs-i="${i}" data-bs-y="${y}" data-bs-s="false">Extras</button>
                     </div>`;
             const cellText2 =
-                singleClass.secondHalfClassId.trim().length > 0 == ""
+                singleClass.secondHalfClassId.length > 0 == ""
                     ? `<div class="row-box-lighter"><span class="text-body-secondary">Second half of semester not selected</span></div>`
                     : `<div class="row-box">
                             <a href="${singleClass.secondHalfClassLink}" target="_blank">
@@ -81,11 +81,27 @@ function createRow() {
     return document.createElement("tr");
 }
 
+function backupData() {
+    const currentBackupCount = Number(localStorage.getItem("backupCount"));
+    if (!currentBackupCount) {
+        localStorage.setItem("backupCount", 1);
+        localStorage.setItem(`backup${1}`, JSON.stringify(getClassDataFromLocalStorage()));
+        return;
+    }
+
+    localStorage.setItem("backupCount", currentBackupCount + 1);
+    localStorage.setItem(
+        `backup${currentBackupCount + 1}`,
+        JSON.stringify(getClassDataFromLocalStorage())
+    );
+}
+
 async function getClasses(e) {
     e.preventDefault();
+    // localStorage.setItem("classDataBackup", JSON.stringify(getClassDataFromLocalStorage()));
+    document.getElementById("total-credits").innerHTML = "0";
     const table = document.getElementById("cirriculum-table").querySelector("tbody");
     table.innerHTML = "";
-    document.getElementById("total-credits").innerHTML = "0";
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
     const onetimepass = document.getElementById("onetimepass").value;
@@ -103,6 +119,10 @@ async function getClasses(e) {
     const resJson = await res.json();
     if (resJson.status == "success") {
         const data = resJson.data;
+        if (!verifyData(data)) {
+            alert("No class selected or failed");
+            return;
+        }
         saveClassDataToLocalStorage(data);
         addData(data);
     } else {
@@ -110,13 +130,12 @@ async function getClasses(e) {
     }
 }
 
+function verifyData(data) {
+    const classDataFlattened = data.flat();
+    return !classDataFlattened.every((myClass) => myClass.classId == "");
+}
+
 function saveClassDataToLocalStorage(data) {
-    data.forEach((period, i) => {
-        period.forEach((singleClass, y) => {
-            data[i][y].classId = singleClass.classId.replace(/\s/g, "");
-            data[i][y].secondHalfClassId = singleClass.secondHalfClassId.replace(/\s/g, "");
-        });
-    });
     const existingClassData = getClassDataFromLocalStorage();
 
     if (!existingClassData) {

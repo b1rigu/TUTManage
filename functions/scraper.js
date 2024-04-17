@@ -76,9 +76,10 @@ export const getClasses = async (username, password, oneTimePass) => {
     await page.waitForSelector(header1Sel);
     await page.click(header1Sel);
 
-    const header2Sel = "#ctl00_bhHeader_ctl28_lnk";
+    const header2Sel = "#ctl00_bhHeader_ctl30_lnk";
     await page.waitForSelector(header2Sel);
     await page.click(header2Sel);
+
     await page.waitForSelector("body");
 
     // Entered the register page
@@ -91,45 +92,60 @@ export const getClasses = async (username, password, oneTimePass) => {
             let classesOnSinglePeriodByDays = [];
             for (let index = 0; index < days.length; index++) {
                 const classIdSpan1 = document.getElementById(
-                    `ctl00_phContents_ucRegistEdit_reTable_ttTable_lct${days[index]}${period}_ctl00_lblLctCd`
+                    `ctl00_phContents_rrMain_ttTable_lct${days[index]}${period}_ctl00_lblLctCd`
                 );
 
                 const classNameSpan1 = document.getElementById(
-                    `ctl00_phContents_ucRegistEdit_reTable_ttTable_lct${days[index]}${period}_ctl00_lblSbjName`
+                    `ctl00_phContents_rrMain_ttTable_lct${days[index]}${period}_ctl00_lblSbjName`
                 );
                 let classLink1 = "";
                 if (classNameSpan1) {
                     const aElement1 = classNameSpan1.querySelector("a");
                     if (aElement1) {
                         classLink1 = aElement1.getAttribute("href");
-                    } else {
-                        console.log("No <a> element found within the <span>.");
                     }
                 }
 
                 const classCredit1 = document.getElementById(
-                    `ctl00_phContents_ucRegistEdit_reTable_ttTable_lct${days[index]}${period}_ctl00_lblCredit`
+                    `ctl00_phContents_rrMain_ttTable_lct${days[index]}${period}_ctl00_lblCredit`
                 );
 
                 const classIdSpan2 = document.getElementById(
-                    `ctl00_phContents_ucRegistEdit_reTable_ttTable_lct${days[index]}${period}_ctl02_lblLctCd`
+                    `ctl00_phContents_rrMain_ttTable_lct${days[index]}${period}_ctl02_lblLctCd`
                 );
 
                 const classNameSpan2 = document.getElementById(
-                    `ctl00_phContents_ucRegistEdit_reTable_ttTable_lct${days[index]}${period}_ctl02_lblSbjName`
+                    `ctl00_phContents_rrMain_ttTable_lct${days[index]}${period}_ctl02_lblSbjName`
                 );
                 let classLink2 = "";
                 if (classNameSpan2) {
-                    const aElement2 = classNameSpan1.querySelector("a");
+                    const aElement2 = classNameSpan2.querySelector("a");
                     if (aElement2) {
                         classLink2 = aElement2.getAttribute("href");
-                    } else {
-                        console.log("No <a> element found within the <span>.");
                     }
                 }
 
                 const classCredit2 = document.getElementById(
-                    `ctl00_phContents_ucRegistEdit_reTable_ttTable_lct${days[index]}${period}_ctl02_lblCredit`
+                    `ctl00_phContents_rrMain_ttTable_lct${days[index]}${period}_ctl02_lblCredit`
+                );
+
+                const classIdSpan3 = document.getElementById(
+                    `ctl00_phContents_rrMain_ttTable_lct${days[index]}${period}_ctl03_lblLctCd`
+                );
+
+                const classNameSpan3 = document.getElementById(
+                    `ctl00_phContents_rrMain_ttTable_lct${days[index]}${period}_ctl03_lblSbjName`
+                );
+                let classLink3 = "";
+                if (classNameSpan3) {
+                    const aElement3 = classNameSpan3.querySelector("a");
+                    if (aElement3) {
+                        classLink3 = aElement3.getAttribute("href");
+                    }
+                }
+
+                const classCredit3 = document.getElementById(
+                    `ctl00_phContents_rrMain_ttTable_lct${days[index]}${period}_ctl03_lblCredit`
                 );
 
                 classesOnSinglePeriodByDays.push({
@@ -141,11 +157,22 @@ export const getClasses = async (username, password, oneTimePass) => {
                         : "",
                     classClassroomLink: "",
                     classNote: "",
-                    secondHalfClassId: classIdSpan2 ? classIdSpan2.textContent.trim() : "",
-                    secondHalfClassName: classNameSpan2 ? classNameSpan2.textContent.trim() : "",
-                    secondHalfClassLink: classLink2,
+                    secondHalfClassId: classIdSpan2
+                        ? classIdSpan2.textContent.trim()
+                        : classIdSpan3
+                        ? classIdSpan3.textContent.trim()
+                        : "",
+                    secondHalfClassName: classNameSpan2
+                        ? classNameSpan2.textContent.trim()
+                        : classNameSpan3
+                        ? classNameSpan3.textContent.trim()
+                        : "",
+                    secondHalfClassLink:
+                        classLink2 != "" ? classLink2 : classLink3 != "" ? classLink3 : "",
                     secondHalfClassCredit: classCredit2
                         ? classCredit2.textContent.trim().replace(/[^0-9]/g, "")
+                        : classCredit3
+                        ? classCredit3.textContent.trim().replace(/[^0-9]/g, "")
                         : "",
                     secondHalfClassClassroomLink: "",
                     secondHalfClassNote: "",

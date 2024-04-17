@@ -82,23 +82,16 @@ function createRow() {
 }
 
 function backupData() {
-    const currentBackupCount = Number(localStorage.getItem("backupCount"));
-    if (!currentBackupCount) {
-        localStorage.setItem("backupCount", 1);
-        localStorage.setItem(`backup${1}`, JSON.stringify(getClassDataFromLocalStorage()));
-        return;
-    }
-
-    localStorage.setItem("backupCount", currentBackupCount + 1);
-    localStorage.setItem(
-        `backup${currentBackupCount + 1}`,
-        JSON.stringify(getClassDataFromLocalStorage())
+    download(
+        "var data = " +
+            JSON.stringify(localStorage) +
+            ";Object.keys(data).forEach(function (k){localStorage.setItem(k, data[k]);});",
+        "backup.txt"
     );
 }
 
 async function getClasses(e) {
     e.preventDefault();
-    // localStorage.setItem("classDataBackup", JSON.stringify(getClassDataFromLocalStorage()));
     document.getElementById("total-credits").innerHTML = "0";
     const table = document.getElementById("cirriculum-table").querySelector("tbody");
     table.innerHTML = "";
@@ -130,7 +123,22 @@ async function getClasses(e) {
     }
 }
 
+function download(text, name) {
+    const a = document.createElement("a");
+    const file = new Blob([text], { type: "text/plain" });
+    const url = URL.createObjectURL(file);
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }, 0);
+}
+
 function verifyData(data) {
+    console.log(data);
     const classDataFlattened = data.flat();
     return !classDataFlattened.every((myClass) => myClass.classId == "");
 }

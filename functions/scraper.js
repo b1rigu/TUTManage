@@ -29,6 +29,7 @@ const checkIfOneTimePassNeeded = async (page, oneTimePass) => {
         if (await page.$("#error_msg1")) {
             await page.click("a:has-text('Re-Login')");
         }
+        const loginBtnSelector = "#login";
         await page.waitForSelector(loginBtnSelector);
         await page.type("input[name='candr']", oneTimePass);
         await page.click(loginBtnSelector);
@@ -80,7 +81,7 @@ export const getClasses = async (username, password, oneTimePass) => {
     await page.waitForSelector(header2Sel);
     await page.click(header2Sel);
 
-    await page.waitForSelector("body");
+    await page.waitForSelector("#ctl00_lblToTop_lbl");
 
     // Entered the register page
 

@@ -58,9 +58,9 @@
                                     <label for="password" class="col-form-label">Password:</label>
                                     <input type="password" class="form-control" id="password" />
                                 </div>
-                                <div class="mb-3">
+                                <div class="mb-3" id="onetimepass-field">
                                     <label for="onetimepass" class="col-form-label"
-                                        >One Time Pass (if using different network):</label
+                                        >One Time Pass:</label
                                     >
                                     <input type="text" class="form-control" id="onetimepass" />
                                 </div>
@@ -125,8 +125,32 @@
                                 <input type="text" class="form-control" id="classroom-link" />
                             </div>
                             <div class="mb-3">
-                                <label for="class-note" class="col-form-label">Note:</label>
-                                <textarea class="form-control" id="class-note" rows="20"></textarea>
+                                <label for="class-note" class="col-form-label">Todos:</label>
+                                <div class="row">
+                                    <div class="col-8">
+                                        <input type="text" class="form-control" id="class-note" />
+                                    </div>
+                                    <div class="col-4">
+                                        <button type="button" class="btn btn-primary w-100">
+                                            Add new
+                                        </button>
+                                    </div>
+                                </div>
+                                <ul class="list-group my-3">
+                                    <li class="list-group-item list-group-item-dark">
+                                        <div class="form-check">
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                value=""
+                                                id="flexCheckDefault"
+                                            />
+                                            <label class="form-check-label" for="flexCheckDefault">
+                                                Default checkbox
+                                            </label>
+                                        </div>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                         <div class="modal-footer">

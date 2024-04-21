@@ -157,7 +157,7 @@ export const getClasses = async (username, password, oneTimePass) => {
                         ? classCredit1.textContent.trim().replace(/[^0-9]/g, "")
                         : "",
                     classClassroomLink: "",
-                    classNote: "",
+                    classTodos: [],
                     secondHalfClassId: classIdSpan2
                         ? classIdSpan2.textContent.trim()
                         : classIdSpan3
@@ -176,7 +176,7 @@ export const getClasses = async (username, password, oneTimePass) => {
                         ? classCredit3.textContent.trim().replace(/[^0-9]/g, "")
                         : "",
                     secondHalfClassClassroomLink: "",
-                    secondHalfClassNote: "",
+                    secondHalfClassTodos: [],
                 });
             }
             classes.push(classesOnSinglePeriodByDays);

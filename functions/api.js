@@ -2,6 +2,11 @@ import express from "express";
 import { getClasses } from "./scraper.js";
 import { readFile } from "fs/promises";
 import admin from "firebase-admin";
+import wifi from "node-wifi";
+
+wifi.init({
+    iface: null, // network interface, choose a random wifi interface if set to null
+});
 
 const credentials = JSON.parse(
     await readFile(new URL("../serviceAccountKey.json", import.meta.url))
@@ -76,12 +81,28 @@ app.get("/get-userdata", async (req, res) => {
     }
 });
 
-app.use(express.static("dist/"));
+app.get("/check-onetime-requirement", async (req, res) => {
+    try {
+        const wifiToCheck = "tutwifi";
+        const wifiinfo = await wifi.getCurrentConnections().catch((error) => {
+            throw new Error("Failed");
+        });
+        if (wifiinfo && wifiinfo[0]) {
+            res.status(200).json({ isRequired: wifiinfo[0].ssid != wifiToCheck });
+        } else {
+            res.status(200).json({ isRequired: true });
+        }
+    } catch (error) {
+        res.send(error);
+    }
+});
 
-app.use("/get-classes", async (req, res) => {
+app.get("/get-classes", async (req, res) => {
     const { username, password, onetimepass } = req.query;
     const allClasses = await getClasses(username, password, onetimepass);
     res.status(200).json(allClasses);
 });
+
+app.use(express.static("dist/"));
 
 app.listen(3000);

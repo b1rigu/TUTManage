@@ -56,3 +56,7 @@ img {
     color: white;
     margin: 0.25rem;
 }
+
+#onetimepass-field {
+    display: none;
+}

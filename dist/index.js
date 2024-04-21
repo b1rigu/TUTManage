@@ -8,7 +8,7 @@ const periods = [
     "18:00 - 19:30",
 ];
 
-(function () {
+(async function () {
     const classData = getClassDataFromLocalStorage();
     if (classData) {
         addData(classData);
@@ -19,6 +19,13 @@ const periods = [
     if (username && password) {
         document.getElementById("username").value = username;
         document.getElementById("password").value = password;
+    }
+
+    const isOnetimeRequired = await fetch(baseUrl + "check-onetime-requirement", {
+        method: "GET",
+    });
+    if (isOnetimeRequired.ok && (await isOnetimeRequired.json()).isRequired) {
+        document.getElementById("onetimepass-field").style.display = "block";
     }
 })();
 
@@ -161,7 +168,7 @@ function saveClassDataToLocalStorage(data) {
                 );
                 if (existingClass) {
                     data[i][y].classClassroomLink = existingClass.classClassroomLink;
-                    data[i][y].classNote = existingClass.classNote;
+                    data[i][y].classTodos = existingClass.classTodos;
                 }
             }
 
@@ -173,7 +180,7 @@ function saveClassDataToLocalStorage(data) {
                 if (existingClass2) {
                     data[i][y].secondHalfClassClassroomLink =
                         existingClass2.secondHalfClassClassroomLink;
-                    data[i][y].secondHalfClassNote = existingClass2.secondHalfClassNote;
+                    data[i][y].secondHalfClassTodos = existingClass2.secondHalfClassTodos;
                 }
             }
         });
@@ -201,10 +208,10 @@ function saveClassDataFromUserInput() {
 
     if (sInput == "false") {
         classData[iInput][yInput].classClassroomLink = classroomLinkInput;
-        classData[iInput][yInput].classNote = noteInput;
+        classData[iInput][yInput].classTodos = noteInput;
     } else {
         classData[iInput][yInput].secondHalfClassClassroomLink = classroomLinkInput;
-        classData[iInput][yInput].secondHalfClassNote = noteInput;
+        classData[iInput][yInput].secondHalfClassTodos = noteInput;
     }
 
     localStorage.setItem("classData", JSON.stringify(classData));
@@ -227,11 +234,11 @@ if (editModal) {
         if (s == "false") {
             className = classData[i][y].className;
             classroomLink = classData[i][y].classClassroomLink;
-            note = classData[i][y].classNote;
+            note = classData[i][y].classTodos;
         } else {
             className = classData[i][y].secondHalfClassName;
             classroomLink = classData[i][y].secondHalfClassClassroomLink;
-            note = classData[i][y].secondHalfClassNote;
+            note = classData[i][y].secondHalfClassTodos;
         }
 
         // Update the modal's content.

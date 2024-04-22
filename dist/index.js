@@ -246,6 +246,33 @@ function todoChange(event, id) {
     });
 }
 
+function todoDelete(id) {
+    if (confirm("Are you sure you want to delete?")) {
+        let classData = getClassDataFromLocalStorage();
+        const iInput = editModal.querySelector("#edit-modal-i").value;
+        const yInput = editModal.querySelector("#edit-modal-y").value;
+        const sInput = editModal.querySelector("#edit-modal-s").value;
+
+        let todos;
+
+        if (sInput == "false") {
+            todos = classData[iInput][yInput].classTodos;
+        } else {
+            todos = classData[iInput][yInput].secondHalfClassTodos;
+        }
+
+        todos.splice(Number(id), 1);
+
+        localStorage.setItem("classData", JSON.stringify(classData));
+
+        clearAndSetClassDataToModal({
+            i: iInput,
+            y: yInput,
+            s: sInput,
+        });
+    }
+}
+
 function addTodo(id, text, isDone = false) {
     let classToAdd = "";
     if (isDone) {
@@ -255,17 +282,19 @@ function addTodo(id, text, isDone = false) {
     const addTodoList = editModal.querySelector("#add-todo-list");
     const addTodoHtml = `
         <li class="list-group-item list-group-item-dark">
-            <div class="form-check">
-                <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="todo-${id}"
-                    onchange="todoChange(event, '${id}')"
-                    ${isDone ? "checked" : ""}
-                />
-                <label class="form-check-label ${classToAdd}" for="todo-${id}" id="todo-label-${id}">
-                    ${text}
-                </label>
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <input
+                        type="checkbox"
+                        id="todo-${id}"
+                        onchange="todoChange(event, '${id}')"
+                        ${isDone ? "checked" : ""}
+                    />
+                    <label class="d-inline ${classToAdd}" for="todo-${id}" id="todo-label-${id}">
+                        ${text}
+                    </label>
+                </div>
+                <button type="button" class="btn-close" aria-label="Close" onclick="todoDelete('${id}')"></button>
             </div>
         </li>
     `;

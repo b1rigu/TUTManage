@@ -47,6 +47,11 @@ const checkIfOneTimePassNeeded = async (page, oneTimePass) => {
 };
 
 export const getClasses = async (username, password, oneTimePass) => {
+    return {
+        status: "success",
+        message: "",
+        data: [],
+    };
     const browser = await puppeteer.launch({
         args: chromium.args,
         defaultViewport: chromium.defaultViewport,

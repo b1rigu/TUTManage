@@ -1,4 +1,4 @@
-const baseUrl = "http://localhost:3000/";
+const baseUrl = "/";
 const periods = [
     "08:50 - 10:20",
     "10:30 - 12:00",

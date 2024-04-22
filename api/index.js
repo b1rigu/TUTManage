@@ -34,8 +34,8 @@ app.get("/check-onetime-requirement", async (req, res) => {
 
 app.post("/get-classes", async (req, res) => {
     const body = req.body;
-    const allClasses = await getClasses(body.username, body.password, body.onetimepass);
-    res.status(200).json(allClasses);
+    // const allClasses = await getClasses(body.username, body.password, body.onetimepass);
+    res.status(200).json({ hello: true, received: body });
 });
 
 app.listen(3000);

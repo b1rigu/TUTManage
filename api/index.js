@@ -37,3 +37,5 @@ app.get("/get-classes", async (req, res) => {
 app.use(express.static("dist/"));
 
 app.listen(3000);
+
+module.exports = app;

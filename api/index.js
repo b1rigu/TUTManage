@@ -12,6 +12,8 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
+app.use("/", express.static("dist/"));
+
 app.get("/check-onetime-requirement", async (req, res) => {
     try {
         const wifiToCheck = "tutwifi";
@@ -34,8 +36,6 @@ app.get("/get-classes", async (req, res) => {
     res.status(200).json(allClasses);
 });
 
-app.use(express.static("dist/"));
-
 app.listen(3000);
 
-export default app
+export default app;

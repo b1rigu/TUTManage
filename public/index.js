@@ -108,13 +108,17 @@ async function getClasses(e) {
     localStorage.setItem("username", username);
     localStorage.setItem("password", password);
 
-    const res = await fetch(
-        baseUrl +
-            `get-classes?username=${username}&password=${password}&onetimepass=${onetimepass}`,
-        {
-            method: "GET",
-        }
-    );
+    const res = await fetch(baseUrl + "get-classes", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            username,
+            password,
+            onetimepass,
+        }),
+    });
 
     const resJson = await res.json();
     if (resJson.status == "success") {

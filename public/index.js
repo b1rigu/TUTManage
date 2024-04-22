@@ -21,12 +21,7 @@ const periods = [
         document.getElementById("password").value = password;
     }
 
-    const isOnetimeRequired = await fetch(baseUrl + "check-onetime-requirement", {
-        method: "GET",
-    });
-    if (isOnetimeRequired.ok && (await isOnetimeRequired.json()).isRequired) {
-        document.getElementById("onetimepass-field").style.display = "block";
-    }
+    document.getElementById("onetimepass-field").style.display = "block";
 })();
 
 function addData(data) {

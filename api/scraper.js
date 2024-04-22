@@ -191,7 +191,8 @@ export const getClasses = async (username, password, oneTimePass) => {
         }
         return classes;
     });
-    await browser.close();
+
+    // await browser.close();
 
     return {
         status: "success",

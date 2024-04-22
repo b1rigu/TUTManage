@@ -54,7 +54,6 @@ export const getClasses = async (username, password, oneTimePass) => {
         headless: chromium.headless,
     });
     const page = await browser.newPage();
-    await page.emulateTimezone("Asia/Tokyo");
     await page.goto(mainPageUrl);
 
     const goToLoginSelector = "#error_lnkLogin_lnk";
@@ -63,6 +62,7 @@ export const getClasses = async (username, password, oneTimePass) => {
 
     const userPassLoginSuccessful = await loginWithUserPass(page, username, password);
     if (!userPassLoginSuccessful) {
+        await browser.close();
         return {
             status: "error",
             message: "Username or Password was wrong",
@@ -72,6 +72,7 @@ export const getClasses = async (username, password, oneTimePass) => {
 
     const oneTimeLoginSuccessful = await checkIfOneTimePassNeeded(page, oneTimePass);
     if (!oneTimeLoginSuccessful) {
+        await browser.close();
         return {
             status: "error",
             message: "OneTimePass was wrong or required",
@@ -92,6 +93,13 @@ export const getClasses = async (username, password, oneTimePass) => {
     await page.waitForSelector("#ctl00_lblToTop_lbl");
 
     // Entered the register page
+
+    await browser.close();
+    return {
+        status: "success",
+        message: "",
+        data: [],
+    };
 
     const allClasses = await page.evaluate(() => {
         let classes = [];
@@ -192,7 +200,7 @@ export const getClasses = async (username, password, oneTimePass) => {
         return classes;
     });
 
-    // await browser.close();
+    await browser.close();
 
     return {
         status: "success",

@@ -18,7 +18,6 @@
     "dependencies": {
         "@sparticuz/chromium": "^123.0.1",
         "express": "^4.19.2",
-        "node-wifi": "^2.0.16",
         "puppeteer-core": "^22.6.5"
     },
     "devDependencies": {

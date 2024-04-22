@@ -1,18 +1,20 @@
 import express from "express";
 import { getClasses } from "./scraper.js";
 import wifi from "node-wifi";
+import path from "path";
 
 wifi.init({
     iface: null, // network interface, choose a random wifi interface if set to null
 });
 
 const app = express();
+const __dirname = path.resolve();
 
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/", express.static("dist/"));
+app.use("/", express.static(path.join(__dirname, "public")));
 
 app.get("/check-onetime-requirement", async (req, res) => {
     try {

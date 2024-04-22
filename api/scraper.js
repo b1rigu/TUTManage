@@ -1,5 +1,8 @@
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
 const mainPageUrl = "https://kyomu.office.tut.ac.jp/portal/StudentApp/Top.aspx";
+
+chromium.setHeadlessMode = true;
 
 const loginWithUserPass = async (page, username, password) => {
     const loginBtnSelector = "button[type='submit']";
@@ -44,7 +47,12 @@ const checkIfOneTimePassNeeded = async (page, oneTimePass) => {
 };
 
 export const getClasses = async (username, password, oneTimePass) => {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+    });
     const page = await browser.newPage();
     await page.emulateTimezone("Asia/Tokyo");
     await page.goto(mainPageUrl);

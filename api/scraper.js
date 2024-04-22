@@ -1,9 +1,8 @@
 import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium-min";
+import chromium from "@sparticuz/chromium";
 const mainPageUrl = "https://kyomu.office.tut.ac.jp/portal/StudentApp/Top.aspx";
 
 chromium.setHeadlessMode = true;
-chromium.setGraphicsMode = false;
 
 const loginWithUserPass = async (page, username, password) => {
     const loginBtnSelector = "button[type='submit']";
@@ -95,7 +94,7 @@ export const getClasses = async (username, password, oneTimePass) => {
 
     // Entered the register page
 
-    await browser.close();
+    // await browser.close();
     return {
         status: "success",
         message: "",

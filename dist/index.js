@@ -315,6 +315,10 @@ function saveClassClassroomData() {
     }
 
     localStorage.setItem("classData", JSON.stringify(classData));
+
+    if (classData) {
+        addData(classData);
+    }
 }
 
 let showCompletedTodos = false;

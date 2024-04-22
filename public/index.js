@@ -109,7 +109,7 @@ async function getClasses(e) {
     localStorage.setItem("password", password);
 
     const res = await fetch(baseUrl + "get-classes", {
-        method: "GET",
+        method: "POST",
         headers: {
             "Content-Type": "application/json",
         },

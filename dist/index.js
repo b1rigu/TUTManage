@@ -197,25 +197,172 @@ function getClassDataFromLocalStorage() {
     return null;
 }
 
-function saveClassDataFromUserInput() {
-    const classroomLinkInput = editModal.querySelector("#classroom-link").value;
-    const noteInput = editModal.querySelector("#class-note").value;
+function showTodoChange(event) {
+    if (event.target.checked) {
+        showCompletedTodos = true;
+    } else {
+        showCompletedTodos = false;
+    }
+
+    const iInput = editModal.querySelector("#edit-modal-i").value;
+    const yInput = editModal.querySelector("#edit-modal-y").value;
+    const sInput = editModal.querySelector("#edit-modal-s").value;
+    clearAndSetClassDataToModal({
+        i: iInput,
+        y: yInput,
+        s: sInput,
+    });
+}
+
+function todoChange(event, id) {
+    let classData = getClassDataFromLocalStorage();
+    const todoLabelEl = document.querySelector(`#todo-label-${id}`);
     const iInput = editModal.querySelector("#edit-modal-i").value;
     const yInput = editModal.querySelector("#edit-modal-y").value;
     const sInput = editModal.querySelector("#edit-modal-s").value;
 
-    let classData = getClassDataFromLocalStorage();
+    let todos;
 
     if (sInput == "false") {
-        classData[iInput][yInput].classClassroomLink = classroomLinkInput;
-        classData[iInput][yInput].classTodos = noteInput;
+        todos = classData[iInput][yInput].classTodos;
     } else {
-        classData[iInput][yInput].secondHalfClassClassroomLink = classroomLinkInput;
-        classData[iInput][yInput].secondHalfClassTodos = noteInput;
+        todos = classData[iInput][yInput].secondHalfClassTodos;
+    }
+
+    if (event.target.checked) {
+        todoLabelEl.classList.add("text-decoration-line-through");
+        todos[Number(id)].isDone = true;
+    } else {
+        todoLabelEl.classList.remove("text-decoration-line-through");
+        todos[Number(id)].isDone = false;
     }
 
     localStorage.setItem("classData", JSON.stringify(classData));
-    location.reload();
+
+    clearAndSetClassDataToModal({
+        i: iInput,
+        y: yInput,
+        s: sInput,
+    });
+}
+
+function addTodo(id, text, isDone = false) {
+    let classToAdd = "";
+    if (isDone) {
+        classToAdd = "text-decoration-line-through";
+    }
+
+    const addTodoList = editModal.querySelector("#add-todo-list");
+    const addTodoHtml = `
+        <li class="list-group-item list-group-item-dark">
+            <div class="form-check">
+                <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="todo-${id}"
+                    onchange="todoChange(event, '${id}')"
+                    ${isDone ? "checked" : ""}
+                />
+                <label class="form-check-label ${classToAdd}" for="todo-${id}" id="todo-label-${id}">
+                    ${text}
+                </label>
+            </div>
+        </li>
+    `;
+
+    addTodoList.innerHTML = addTodoHtml + addTodoList.innerHTML;
+}
+
+function addAndSaveTodoFromUserInput() {
+    const todoInputBox = editModal.querySelector("#add-todo-box");
+
+    if (todoInputBox.value == "") return;
+
+    let classData = getClassDataFromLocalStorage();
+    const iInput = editModal.querySelector("#edit-modal-i").value;
+    const yInput = editModal.querySelector("#edit-modal-y").value;
+    const sInput = editModal.querySelector("#edit-modal-s").value;
+
+    if (sInput == "false") {
+        addTodo(classData[iInput][yInput].classTodos.length, todoInputBox.value);
+        classData[iInput][yInput].classTodos.push({
+            text: todoInputBox.value,
+            isDone: false,
+        });
+    } else {
+        addTodo(classData[iInput][yInput].secondHalfClassTodos.length, todoInputBox.value);
+        classData[iInput][yInput].secondHalfClassTodos.push({
+            text: todoInputBox.value,
+            isDone: false,
+        });
+    }
+
+    todoInputBox.value = "";
+    localStorage.setItem("classData", JSON.stringify(classData));
+}
+
+function saveClassClassroomData() {
+    let classData = getClassDataFromLocalStorage();
+    const classroomLinkInput = editModal.querySelector("#classroom-link").value;
+    const iInput = editModal.querySelector("#edit-modal-i").value;
+    const yInput = editModal.querySelector("#edit-modal-y").value;
+    const sInput = editModal.querySelector("#edit-modal-s").value;
+
+    if (sInput == "false") {
+        classData[iInput][yInput].classClassroomLink = classroomLinkInput;
+    } else {
+        classData[iInput][yInput].secondHalfClassClassroomLink = classroomLinkInput;
+    }
+
+    localStorage.setItem("classData", JSON.stringify(classData));
+}
+
+let showCompletedTodos = false;
+function sortOrHideTodosList(todos) {
+    if (showCompletedTodos) {
+        return todos.sort(function (x, y) {
+            return x.isDone === y.isDone ? 0 : x.isDone ? -1 : 1;
+        });
+    }
+
+    return todos.filter((todo) => !todo.isDone);
+}
+
+function clearAndSetClassDataToModal({ i, y, s }) {
+    const classData = getClassDataFromLocalStorage();
+
+    let className = "";
+    let classroomLink = "";
+    let todos = [];
+
+    if (s == "false") {
+        className = classData[i][y].className;
+        classroomLink = classData[i][y].classClassroomLink;
+        todos = classData[i][y].classTodos;
+    } else {
+        className = classData[i][y].secondHalfClassName;
+        classroomLink = classData[i][y].secondHalfClassClassroomLink;
+        todos = classData[i][y].secondHalfClassTodos;
+    }
+
+    todos = sortOrHideTodosList(todos);
+
+    const modalTitle = editModal.querySelector("#edit-modal-title");
+    const classroomLinkInput = editModal.querySelector("#classroom-link");
+    const iInput = editModal.querySelector("#edit-modal-i");
+    const yInput = editModal.querySelector("#edit-modal-y");
+    const sInput = editModal.querySelector("#edit-modal-s");
+
+    modalTitle.textContent = className;
+    classroomLinkInput.value = classroomLink;
+    const addTodoList = editModal.querySelector("#add-todo-list");
+    addTodoList.innerHTML = "";
+    for (let i = 0; i < todos.length; i++) {
+        addTodo(i, todos[i].text, todos[i].isDone);
+    }
+    iInput.value = i;
+    yInput.value = y;
+    sInput.value = s;
 }
 
 const editModal = document.getElementById("editModal");
@@ -225,35 +372,10 @@ if (editModal) {
         const i = button.getAttribute("data-bs-i");
         const y = button.getAttribute("data-bs-y");
         const s = button.getAttribute("data-bs-s");
-        const classData = getClassDataFromLocalStorage();
-
-        let className = "";
-        let classroomLink = "";
-        let note = "";
-
-        if (s == "false") {
-            className = classData[i][y].className;
-            classroomLink = classData[i][y].classClassroomLink;
-            note = classData[i][y].classTodos;
-        } else {
-            className = classData[i][y].secondHalfClassName;
-            classroomLink = classData[i][y].secondHalfClassClassroomLink;
-            note = classData[i][y].secondHalfClassTodos;
-        }
-
-        // Update the modal's content.
-        const modalTitle = editModal.querySelector("#edit-modal-title");
-        const classroomLinkInput = editModal.querySelector("#classroom-link");
-        const noteInput = editModal.querySelector("#class-note");
-        const iInput = editModal.querySelector("#edit-modal-i");
-        const yInput = editModal.querySelector("#edit-modal-y");
-        const sInput = editModal.querySelector("#edit-modal-s");
-
-        modalTitle.textContent = className;
-        classroomLinkInput.value = classroomLink;
-        noteInput.value = note;
-        iInput.value = i;
-        yInput.value = y;
-        sInput.value = s;
+        clearAndSetClassDataToModal({
+            i: i,
+            y: y,
+            s: s,
+        });
     });
 }

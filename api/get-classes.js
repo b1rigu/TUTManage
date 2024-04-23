@@ -1,4 +1,4 @@
-import { getClasses } from "./scraper.js";
+// import { getClasses } from "./scraper.js";
 
 // export default async (event, context) => {
 //     // Parse the request body from the event object

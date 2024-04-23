@@ -1,5 +1,4 @@
 // import { getClasses } from "./scraper.js";
-import { JSDOM } from "jsdom";
 
 // export default async (event, context) => {
 //     // Parse the request body from the event object
@@ -26,8 +25,5 @@ export default async function handler(req) {
     const response = await fetch("https://kyomu.office.tut.ac.jp/portal/StudentApp/Top.aspx");
     const html = await response.text();
 
-    const dom = new JSDOM(html);
-    const text = dom.window.document.getElementById("error_lnkLogin_lnk").textContent;
-
-    return new Response(text);
+    return new Response(html);
 }

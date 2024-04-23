@@ -47,11 +47,6 @@ const checkIfOneTimePassNeeded = async (page, oneTimePass) => {
 };
 
 export const getClasses = async (username, password, oneTimePass) => {
-    return {
-        status: "success",
-        message: "",
-        data: [],
-    };
     const browser = await puppeteer.launch({
         args: chromium.args,
         defaultViewport: chromium.defaultViewport,
@@ -98,13 +93,6 @@ export const getClasses = async (username, password, oneTimePass) => {
     await page.waitForSelector("#ctl00_lblToTop_lbl");
 
     // Entered the register page
-
-    // await browser.close();
-    return {
-        status: "success",
-        message: "",
-        data: [],
-    };
 
     const allClasses = await page.evaluate(() => {
         let classes = [];

@@ -103,21 +103,7 @@ async function getClasses(e) {
     localStorage.setItem("username", username);
     localStorage.setItem("password", password);
 
-    const res1 = await fetch(baseUrl + "get-classes-stepone", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
-
-    const res1Json = await res1.json();
-
-    if (res1Json.status != "success") {
-        alert(res1Json.message);
-        return;
-    }
-
-    const res2 = await fetch(baseUrl + "get-classes-steptwo", {
+    const res = await fetch(baseUrl + "get-classes", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -125,66 +111,13 @@ async function getClasses(e) {
         body: JSON.stringify({
             username,
             password,
-            browserEndpoint: res1Json.data,
-        }),
-    });
-
-    const res2Json = await res2.json();
-
-    if (res2Json.status != "success") {
-        alert(res2Json.message);
-        return;
-    }
-
-    const res3 = await fetch(baseUrl + "get-classes-stepthree", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
             onetimepass,
-            browserEndpoint: res2Json.data,
         }),
     });
 
-    const res3Json = await res3.json();
-
-    if (res3Json.status != "success") {
-        alert(res3Json.message);
-        return;
-    }
-
-    const res4 = await fetch(baseUrl + "get-classes-stepfour", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            browserEndpoint: res3Json.data,
-        }),
-    });
-
-    const res4Json = await res4.json();
-
-    if (res4Json.status != "success") {
-        alert(res4Json.message);
-        return;
-    }
-
-    const res5 = await fetch(baseUrl + "get-classes-stepfive", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            browserEndpoint: res4Json.data,
-        }),
-    });
-
-    const res5Json = await res5.json();
-
-    if (res5Json.status == "success") {
-        const data = res5Json.data;
+    const resJson = await res.json();
+    if (resJson.status == "success") {
+        const data = resJson.data;
         if (!verifyData(data)) {
             alert("No class selected or failed");
             return;
@@ -192,7 +125,7 @@ async function getClasses(e) {
         saveClassDataToLocalStorage(data);
         addData(data);
     } else {
-        alert(res5Json.message);
+        alert(resJson.message);
     }
 }
 

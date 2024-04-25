@@ -291,7 +291,7 @@ function addTodo(id, text, isDone = false) {
                         onchange="todoChange(event, '${id}')"
                         ${isDone ? "checked" : ""}
                     />
-                    <label class="d-inline ${classToAdd}" for="todo-${id}" id="todo-label-${id}">
+                    <label class="d-inline ${classToAdd}" id="todo-label-${id}">
                         ${text}
                     </label>
                 </div>

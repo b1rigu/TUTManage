@@ -48,7 +48,8 @@ function addData(data) {
                             <a href="${singleClass.classLink}" target="_blank">
                                 <h5>${singleClass.className}</h5>
                             </a>
-                            <p>Credit: ${singleClass.classCredit}</p>
+                            <p class="m-0">Credit: ${singleClass.classCredit}</p>
+                            <p class="m-0">Todos: ${singleClass.classTodos.length}</p>
                             ${classroomLink1}
                             <button type="button" class="btn btn-secondary w-100" data-bs-toggle="modal" data-bs-target="#editModal" data-bs-i="${i}" data-bs-y="${y}" data-bs-s="false">Extras</button>
                     </div>`;
@@ -59,7 +60,8 @@ function addData(data) {
                             <a href="${singleClass.secondHalfClassLink}" target="_blank">
                                 <h5>${singleClass.secondHalfClassName}</h5>
                             </a>
-                            <p>Credit: ${singleClass.secondHalfClassCredit}</p>
+                            <p class="m-0">Credit: ${singleClass.secondHalfClassCredit}</p>
+                            <p class="m-0">Todos: ${singleClass.secondHalfClassTodos.length}</p>
                             ${classroomLink2}
                             <button type="button" class="btn btn-secondary w-100" data-bs-toggle="modal" data-bs-target="#editModal" data-bs-i="${i}" data-bs-y="${y}" data-bs-s="true">Extras</button>
                     </div>`;

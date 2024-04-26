@@ -49,7 +49,9 @@ function addData(data) {
                                 <h5>${singleClass.className}</h5>
                             </a>
                             <p class="m-0">Credit: ${singleClass.classCredit}</p>
-                            <p class="m-0">Todos: ${singleClass.classTodos.filter(task => !task.isDone).length}</p>
+                            <p class="m-0">Todos: ${
+                                singleClass.classTodos.filter((task) => !task.isDone).length
+                            }</p>
                             ${classroomLink1}
                             <button type="button" class="btn btn-secondary w-100" data-bs-toggle="modal" data-bs-target="#editModal" data-bs-i="${i}" data-bs-y="${y}" data-bs-s="false">Extras</button>
                     </div>`;
@@ -61,7 +63,10 @@ function addData(data) {
                                 <h5>${singleClass.secondHalfClassName}</h5>
                             </a>
                             <p class="m-0">Credit: ${singleClass.secondHalfClassCredit}</p>
-                            <p class="m-0">Todos: ${singleClass.secondHalfClassTodos.filter(task => !task.isDone).length}</p>
+                            <p class="m-0">Todos: ${
+                                singleClass.secondHalfClassTodos.filter((task) => !task.isDone)
+                                    .length
+                            }</p>
                             ${classroomLink2}
                             <button type="button" class="btn btn-secondary w-100" data-bs-toggle="modal" data-bs-target="#editModal" data-bs-i="${i}" data-bs-y="${y}" data-bs-s="true">Extras</button>
                     </div>`;
@@ -275,6 +280,7 @@ function todoDelete(id) {
 }
 
 function addTodo(id, text, isDone = false) {
+    if (!showCompletedTodos && isDone) return;
     let classToAdd = "";
     if (isDone) {
         classToAdd = "text-decoration-line-through";
@@ -352,15 +358,6 @@ function saveClassClassroomData() {
 }
 
 let showCompletedTodos = false;
-function sortOrHideTodosList(todos) {
-    if (showCompletedTodos) {
-        return todos.sort(function (x, y) {
-            return x.isDone === y.isDone ? 0 : x.isDone ? -1 : 1;
-        });
-    }
-
-    return todos.filter((todo) => !todo.isDone);
-}
 
 function clearAndSetClassDataToModal({ i, y, s }) {
     const classData = getClassDataFromLocalStorage();
@@ -379,7 +376,9 @@ function clearAndSetClassDataToModal({ i, y, s }) {
         todos = classData[i][y].secondHalfClassTodos;
     }
 
-    todos = sortOrHideTodosList(todos);
+    todos = todos.sort(function (x, y) {
+        return x.isDone === y.isDone ? 0 : x.isDone ? -1 : 1;
+    });
 
     const modalTitle = editModal.querySelector("#edit-modal-title");
     const classroomLinkInput = editModal.querySelector("#classroom-link");

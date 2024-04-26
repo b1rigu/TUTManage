@@ -290,16 +290,16 @@ function addTodo(id, text, isDone = false) {
     const addTodoHtml = `
         <li class="list-group-item list-group-item-dark">
             <div class="d-flex align-items-center justify-content-between">
-                <div style="overflow: auto; width: 100%;">
+                <div class="d-flex align-items-center gap-3 w-100 overflow-auto">
                     <input
                         type="checkbox"
                         id="todo-${id}"
                         onchange="todoChange(event, '${id}')"
                         ${isDone ? "checked" : ""}
                     />
-                    <label class="d-block ${classToAdd}" id="todo-label-${id}">
-                        ${text}
-                    </label>
+                    <p class="m-0 overflow-auto ${classToAdd}" id="todo-label-${id}">
+                            ${text}
+                    </p>
                 </div>
                 <button type="button" class="btn-close" aria-label="Close" onclick="todoDelete('${id}')"></button>
             </div>

@@ -245,6 +245,8 @@ function todoChange(event, id) {
 
     localStorage.setItem("classData", JSON.stringify(classData));
 
+    addData(classData);
+
     clearAndSetClassDataToModal({
         i: iInput,
         y: yInput,
@@ -270,6 +272,8 @@ function todoDelete(id) {
         todos.splice(Number(id), 1);
 
         localStorage.setItem("classData", JSON.stringify(classData));
+
+        addData(classData);
 
         clearAndSetClassDataToModal({
             i: iInput,
@@ -335,6 +339,8 @@ function addAndSaveTodoFromUserInput() {
 
     todoInputBox.value = "";
     localStorage.setItem("classData", JSON.stringify(classData));
+
+    addData(classData);
 }
 
 function saveClassClassroomData() {

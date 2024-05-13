@@ -324,13 +324,11 @@ function addAndSaveTodoFromUserInput() {
     const sInput = editModal.querySelector("#edit-modal-s").value;
 
     if (sInput == "false") {
-        addTodo(classData[iInput][yInput].classTodos.length, todoInputBox.value);
         classData[iInput][yInput].classTodos.push({
             text: todoInputBox.value,
             isDone: false,
         });
     } else {
-        addTodo(classData[iInput][yInput].secondHalfClassTodos.length, todoInputBox.value);
         classData[iInput][yInput].secondHalfClassTodos.push({
             text: todoInputBox.value,
             isDone: false,
@@ -341,6 +339,11 @@ function addAndSaveTodoFromUserInput() {
     localStorage.setItem("classData", JSON.stringify(classData));
 
     addData(classData);
+    clearAndSetClassDataToModal({
+        i: iInput,
+        y: yInput,
+        s: sInput,
+    });
 }
 
 function saveClassClassroomData() {
@@ -375,11 +378,15 @@ function clearAndSetClassDataToModal({ i, y, s }) {
     if (s == "false") {
         className = classData[i][y].className;
         classroomLink = classData[i][y].classClassroomLink;
-        todos = classData[i][y].classTodos;
+        todos = classData[i][y].classTodos.map((todo, index) => {
+            return { ...todo, origIndex: index };
+        });
     } else {
         className = classData[i][y].secondHalfClassName;
         classroomLink = classData[i][y].secondHalfClassClassroomLink;
-        todos = classData[i][y].secondHalfClassTodos;
+        todos = classData[i][y].secondHalfClassTodos.map((todo, index) => {
+            return { ...todo, origIndex: index };
+        });
     }
 
     todos = todos.sort(function (x, y) {
@@ -397,7 +404,7 @@ function clearAndSetClassDataToModal({ i, y, s }) {
     const addTodoList = editModal.querySelector("#add-todo-list");
     addTodoList.innerHTML = "";
     for (let i = 0; i < todos.length; i++) {
-        addTodo(i, todos[i].text, todos[i].isDone);
+        addTodo(todos[i].origIndex, todos[i].text, todos[i].isDone);
     }
     iInput.value = i;
     yInput.value = y;

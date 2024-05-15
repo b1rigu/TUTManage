@@ -143,326 +143,348 @@
         <div class="py back-darker text-center">
             <h3>© 2024 Birigu</h3>
         </div>
-    </body>
-    <!--  -->
-    <!--  -->
-    <!--  -->
-    <!--  -->
-    <!-- MODALS -->
-    <!-- Refetch modal -->
-    <div class="modal fade" id="refreshModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5">Update the cirriculum data</h1>
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"
-                    ></button>
-                </div>
-                <nav>
-                    <div class="nav nav-tabs mt-1" id="nav-tab-refetch" role="tablist">
+        <!--  -->
+        <!--  -->
+        <!--  -->
+        <!--  -->
+        <!-- MODALS -->
+        <!-- Refetch modal -->
+        <div class="modal fade" id="refreshModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5">Update the cirriculum data</h1>
                         <button
-                            class="nav-link active"
-                            id="nav-manual-method-btn"
-                            data-bs-toggle="tab"
-                            data-bs-target="#nav-manual-method"
                             type="button"
-                            role="tab"
-                            aria-controls="tab-manual-method"
-                            aria-selected="true"
-                        >
-                            Manual
-                        </button>
-                        <button
-                            class="nav-link"
-                            id="nav-auto-method-btn"
-                            data-bs-toggle="tab"
-                            data-bs-target="#nav-auto-method"
-                            type="button"
-                            role="tab"
-                            aria-controls="nav-auto-method"
-                            aria-selected="false"
-                            disabled
-                        >
-                            Auto (disabled currently)
-                        </button>
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
                     </div>
-                </nav>
-                <div class="tab-content" id="refetch-nav-content">
-                    <div
-                        class="tab-pane fade show active"
-                        id="nav-manual-method"
-                        role="tabpanel"
-                        aria-labelledby="nav-manual-method-btn"
-                        tabindex="0"
-                    >
-                        <div class="modal-body">
-                            <form>
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        - Go to the timetable section of the kyomu website
-                                    </label>
-                                    <label class="form-label"> - Open inspect menu </label>
-                                    <label class="form-label">
-                                        - Copy the raw html of the website and paste it below
-                                    </label>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="rawhtml" class="col-form-label">Raw html:</label>
-                                    <input type="text" class="form-control" id="rawhtml" />
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                Close
+                    <nav>
+                        <div class="nav nav-tabs mt-1" id="nav-tab-refetch" role="tablist">
+                            <button
+                                class="nav-link active"
+                                id="nav-manual-method-btn"
+                                data-bs-toggle="tab"
+                                data-bs-target="#nav-manual-method"
+                                type="button"
+                                role="tab"
+                                aria-controls="tab-manual-method"
+                                aria-selected="true"
+                            >
+                                Manual
                             </button>
                             <button
+                                class="nav-link"
+                                id="nav-auto-method-btn"
+                                data-bs-toggle="tab"
+                                data-bs-target="#nav-auto-method"
                                 type="button"
-                                class="btn btn-primary non-loading"
-                                onclick="getClassesManual(event)"
+                                role="tab"
+                                aria-controls="nav-auto-method"
+                                aria-selected="false"
+                                disabled
                             >
-                                Update
-                            </button>
-                            <button class="btn btn-primary loading" type="button" disabled>
-                                <span
-                                    class="spinner-border spinner-border-sm"
-                                    aria-hidden="true"
-                                ></span>
-                                <span role="status">Updating...</span>
+                                Auto (disabled currently)
                             </button>
                         </div>
-                    </div>
-                    <div
-                        class="tab-pane fade"
-                        id="nav-auto-method"
-                        role="tabpanel"
-                        aria-labelledby="nav-manual-method-btn"
-                        tabindex="0"
-                    >
-                        <div class="modal-body">
-                            <form>
-                                <div class="mb-3">
-                                    <label for="kyomuUsername" class="col-form-label"
-                                        >Kyomu Username:</label
-                                    >
-                                    <input type="text" class="form-control" id="kyomuUsername" />
-                                </div>
-                                <div class="mb-3">
-                                    <label for="kyomuPassword" class="col-form-label"
-                                        >Kyomu Password:</label
-                                    >
-                                    <input
-                                        type="password"
-                                        class="form-control"
-                                        id="kyomuPassword"
-                                    />
-                                </div>
-                                <div class="mb-3" id="onetimepass-field">
-                                    <label for="onetimepass" class="col-form-label"
-                                        >One Time Pass:</label
-                                    >
-                                    <input type="text" class="form-control" id="onetimepass" />
-                                </div>
-                            </form>
+                    </nav>
+                    <div class="tab-content" id="refetch-nav-content">
+                        <div
+                            class="tab-pane fade show active"
+                            id="nav-manual-method"
+                            role="tabpanel"
+                            aria-labelledby="nav-manual-method-btn"
+                            tabindex="0"
+                        >
+                            <div class="modal-body">
+                                <form>
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            - Go to the timetable section of the kyomu website
+                                        </label>
+                                        <label class="form-label"> - Open inspect menu </label>
+                                        <label class="form-label">
+                                            - Copy the raw html of the website and paste it below
+                                        </label>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="rawhtml" class="col-form-label"
+                                            >Raw html:</label
+                                        >
+                                        <input type="text" class="form-control" id="rawhtml" />
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary"
+                                    data-bs-dismiss="modal"
+                                >
+                                    Close
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-primary non-loading"
+                                    onclick="getClassesManual(event)"
+                                >
+                                    Update
+                                </button>
+                                <button class="btn btn-primary loading" type="button" disabled>
+                                    <span
+                                        class="spinner-border spinner-border-sm"
+                                        aria-hidden="true"
+                                    ></span>
+                                    <span role="status">Updating...</span>
+                                </button>
+                            </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                Close
-                            </button>
-                            <button
-                                type="button"
-                                class="btn btn-primary non-loading"
-                                onclick="getClassesAuto(event)"
-                            >
-                                Update
-                            </button>
-                            <button class="btn btn-primary loading" type="button" disabled>
-                                <span
-                                    class="spinner-border spinner-border-sm"
-                                    aria-hidden="true"
-                                ></span>
-                                <span role="status">Updating...</span>
-                            </button>
+                        <div
+                            class="tab-pane fade"
+                            id="nav-auto-method"
+                            role="tabpanel"
+                            aria-labelledby="nav-manual-method-btn"
+                            tabindex="0"
+                        >
+                            <div class="modal-body">
+                                <form>
+                                    <div class="mb-3">
+                                        <label for="kyomuUsername" class="col-form-label"
+                                            >Kyomu Username:</label
+                                        >
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="kyomuUsername"
+                                        />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="kyomuPassword" class="col-form-label"
+                                            >Kyomu Password:</label
+                                        >
+                                        <input
+                                            type="password"
+                                            class="form-control"
+                                            id="kyomuPassword"
+                                        />
+                                    </div>
+                                    <div class="mb-3" id="onetimepass-field">
+                                        <label for="onetimepass" class="col-form-label"
+                                            >One Time Pass:</label
+                                        >
+                                        <input type="text" class="form-control" id="onetimepass" />
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary"
+                                    data-bs-dismiss="modal"
+                                >
+                                    Close
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-primary non-loading"
+                                    onclick="getClassesAuto(event)"
+                                >
+                                    Update
+                                </button>
+                                <button class="btn btn-primary loading" type="button" disabled>
+                                    <span
+                                        class="spinner-border spinner-border-sm"
+                                        aria-hidden="true"
+                                    ></span>
+                                    <span role="status">Updating...</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Login modal -->
-    <div class="modal fade" id="loginModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5">Login</h1>
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"
-                    ></button>
-                </div>
-                <nav>
-                    <div class="nav nav-tabs mt-1" id="nav-tab-login" role="tablist">
+        <!-- Login modal -->
+        <div class="modal fade" id="loginModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5">Login</h1>
                         <button
-                            class="nav-link active"
-                            id="nav-login-btn"
-                            data-bs-toggle="tab"
-                            data-bs-target="#nav-login"
                             type="button"
-                            role="tab"
-                            aria-controls="nav-login"
-                            aria-selected="true"
-                        >
-                            Login
-                        </button>
-                        <button
-                            class="nav-link"
-                            id="nav-signup-btn"
-                            data-bs-toggle="tab"
-                            data-bs-target="#nav-signup"
-                            type="button"
-                            role="tab"
-                            aria-controls="nav-signup"
-                            aria-selected="false"
-                        >
-                            Signup
-                        </button>
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
                     </div>
-                </nav>
-                <div class="tab-content" id="login-nav-content">
-                    <div
-                        class="tab-pane fade show active"
-                        id="nav-login"
-                        role="tabpanel"
-                        aria-labelledby="nav-login-btn"
-                        tabindex="0"
-                    >
-                        <div class="modal-body">
-                            <form>
-                                <div class="mb-3">
-                                    <label for="database_username" class="col-form-label"
-                                        >Email:</label
-                                    >
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="database_username"
-                                    />
-                                </div>
-                                <div class="mb-3">
-                                    <label for="database_password" class="col-form-label"
-                                        >Password:</label
-                                    >
-                                    <input
-                                        type="password"
-                                        class="form-control"
-                                        id="database_password"
-                                    />
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                Close
-                            </button>
+                    <nav>
+                        <div class="nav nav-tabs mt-1" id="nav-tab-login" role="tablist">
                             <button
+                                class="nav-link active"
+                                id="nav-login-btn"
+                                data-bs-toggle="tab"
+                                data-bs-target="#nav-login"
                                 type="button"
-                                class="btn btn-primary non-loading"
-                                onclick="login(event)"
+                                role="tab"
+                                aria-controls="nav-login"
+                                aria-selected="true"
                             >
                                 Login
                             </button>
-                            <button class="btn btn-primary loading" type="button" disabled>
-                                <span
-                                    class="spinner-border spinner-border-sm"
-                                    aria-hidden="true"
-                                ></span>
-                                <span role="status">Logging in...</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div
-                        class="tab-pane fade"
-                        id="nav-signup"
-                        role="tabpanel"
-                        aria-labelledby="nav-signup-btn"
-                        tabindex="0"
-                    >
-                        <div class="modal-body">
-                            <form>
-                                <div class="mb-3">
-                                    <label for="database_username_signup" class="col-form-label"
-                                        >Email:</label
-                                    >
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="database_username_signup"
-                                    />
-                                </div>
-                                <div class="mb-3">
-                                    <label for="database_password_signup" class="col-form-label"
-                                        >Password:</label
-                                    >
-                                    <input
-                                        type="password"
-                                        class="form-control"
-                                        id="database_password_signup"
-                                    />
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                Close
-                            </button>
                             <button
+                                class="nav-link"
+                                id="nav-signup-btn"
+                                data-bs-toggle="tab"
+                                data-bs-target="#nav-signup"
                                 type="button"
-                                class="btn btn-primary non-loading"
-                                onclick="signup(event)"
+                                role="tab"
+                                aria-controls="nav-signup"
+                                aria-selected="false"
                             >
                                 Signup
                             </button>
-                            <button class="btn btn-primary loading" type="button" disabled>
-                                <span
-                                    class="spinner-border spinner-border-sm"
-                                    aria-hidden="true"
-                                ></span>
-                                <span role="status">Signing up...</span>
-                            </button>
+                        </div>
+                    </nav>
+                    <div class="tab-content" id="login-nav-content">
+                        <div
+                            class="tab-pane fade show active"
+                            id="nav-login"
+                            role="tabpanel"
+                            aria-labelledby="nav-login-btn"
+                            tabindex="0"
+                        >
+                            <div class="modal-body">
+                                <form>
+                                    <div class="mb-3">
+                                        <label for="database_username" class="col-form-label"
+                                            >Email:</label
+                                        >
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="database_username"
+                                        />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="database_password" class="col-form-label"
+                                            >Password:</label
+                                        >
+                                        <input
+                                            type="password"
+                                            class="form-control"
+                                            id="database_password"
+                                        />
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary"
+                                    data-bs-dismiss="modal"
+                                >
+                                    Close
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-primary non-loading"
+                                    onclick="login(event)"
+                                >
+                                    Login
+                                </button>
+                                <button class="btn btn-primary loading" type="button" disabled>
+                                    <span
+                                        class="spinner-border spinner-border-sm"
+                                        aria-hidden="true"
+                                    ></span>
+                                    <span role="status">Logging in...</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div
+                            class="tab-pane fade"
+                            id="nav-signup"
+                            role="tabpanel"
+                            aria-labelledby="nav-signup-btn"
+                            tabindex="0"
+                        >
+                            <div class="modal-body">
+                                <form>
+                                    <div class="mb-3">
+                                        <label for="database_username_signup" class="col-form-label"
+                                            >Email:</label
+                                        >
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="database_username_signup"
+                                        />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="database_password_signup" class="col-form-label"
+                                            >Password:</label
+                                        >
+                                        <input
+                                            type="password"
+                                            class="form-control"
+                                            id="database_password_signup"
+                                        />
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary"
+                                    data-bs-dismiss="modal"
+                                >
+                                    Close
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-primary non-loading"
+                                    onclick="signup(event)"
+                                >
+                                    Signup
+                                </button>
+                                <button class="btn btn-primary loading" type="button" disabled>
+                                    <span
+                                        class="spinner-border spinner-border-sm"
+                                        aria-hidden="true"
+                                    ></span>
+                                    <span role="status">Signing up...</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Toast template -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div
-            id="alert-toast"
-            class="toast"
-            role="alert"
-            aria-live="assertive"
-            aria-atomic="true"
-            ref="{toastRef}"
-        >
-            <div class="toast-header">
-                <strong class="me-auto">Alert</strong>
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="toast"
-                    aria-label="Close"
-                ></button>
+        <!-- Toast template -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div
+                id="alert-toast"
+                class="toast"
+                role="alert"
+                aria-live="assertive"
+                aria-atomic="true"
+                ref="{toastRef}"
+            >
+                <div class="toast-header">
+                    <strong class="me-auto">Alert</strong>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="toast"
+                        aria-label="Close"
+                    ></button>
+                </div>
+                <div class="toast-body" id="alert-toast-msg"></div>
             </div>
-            <div class="toast-body" id="alert-toast-msg"></div>
         </div>
-    </div>
+    </body>
 </html>

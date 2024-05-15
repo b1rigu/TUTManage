@@ -101,9 +101,6 @@ function backupData() {
 
 async function getClassesManual(e) {
     e.preventDefault();
-    document.getElementById("total-credits").innerHTML = "0";
-    const table = document.getElementById("cirriculum-table").querySelector("tbody");
-    table.innerHTML = "";
     const rawhtml = document.getElementById("rawhtml").value;
     document.getElementById("rawhtml").value = "";
 
@@ -210,6 +207,10 @@ async function getClassesManual(e) {
         alert("No class selected or failed");
         return;
     }
+    
+    document.getElementById("total-credits").innerHTML = "0";
+    const table = document.getElementById("cirriculum-table").querySelector("tbody");
+    table.innerHTML = "";
     saveClassDataToLocalStorage(classes);
     addData(classes);
 }

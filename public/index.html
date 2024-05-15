@@ -66,79 +66,6 @@
                 </thead>
                 <tbody></tbody>
             </table>
-
-            <div class="modal fade" id="editModal" tabindex="-1">
-                <div class="modal-dialog modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="edit-modal-title">Class extras</h1>
-                        </div>
-                        <div class="modal-body">
-                            <input type="text" id="edit-modal-i" hidden />
-                            <input type="text" id="edit-modal-y" hidden />
-                            <input type="text" id="edit-modal-s" hidden />
-                            <div class="mb-3">
-                                <label for="classroom-link" class="col-form-label"
-                                    >Classroom Link:</label
-                                >
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    id="classroom-link"
-                                    onblur="saveClassClassroomData()"
-                                />
-                            </div>
-                            <div class="mb-3">
-                                <label for="add-todo-box" class="col-form-label">Todos:</label>
-                                <div class="row">
-                                    <div class="col-8">
-                                        <input type="text" class="form-control" id="add-todo-box" />
-                                    </div>
-                                    <div class="col-4">
-                                        <button
-                                            type="button"
-                                            class="btn btn-primary w-100"
-                                            onclick="addAndSaveTodoFromUserInput()"
-                                        >
-                                            Add new
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="card mt-3">
-                                    <div class="card-header">
-                                        <div
-                                            class="d-flex justify-content-between align-items-center"
-                                        >
-                                            <span>Todo list</span>
-                                            <input
-                                                type="checkbox"
-                                                class="btn-check"
-                                                id="show-todos-btn"
-                                                autocomplete="off"
-                                                onchange="showTodoChange(event)"
-                                            />
-                                            <label
-                                                class="btn btn-outline-secondary btn-sm"
-                                                for="show-todos-btn"
-                                            >
-                                                Show completed todos
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <ul class="list-group" id="add-todo-list"></ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
         <div class="py back-darker text-center">
             <h3>© 2024 Birigu</h3>
@@ -148,6 +75,78 @@
         <!--  -->
         <!--  -->
         <!-- MODALS -->
+        <!-- Classdata Edit modal -->
+        <div class="modal fade" id="editModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="edit-modal-title">Class extras</h1>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" id="edit-modal-i" hidden />
+                        <input type="text" id="edit-modal-y" hidden />
+                        <input type="text" id="edit-modal-s" hidden />
+                        <div class="mb-3">
+                            <label for="classroom-link" class="col-form-label"
+                                >Classroom Link:</label
+                            >
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="classroom-link"
+                                onblur="saveClassClassroomData()"
+                            />
+                        </div>
+                        <div class="mb-3">
+                            <label for="add-todo-box" class="col-form-label">Todos:</label>
+                            <div class="row">
+                                <div class="col-8">
+                                    <input type="text" class="form-control" id="add-todo-box" />
+                                </div>
+                                <div class="col-4">
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary w-100"
+                                        onclick="addAndSaveTodoFromUserInput()"
+                                    >
+                                        Add new
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Todo list</span>
+                                        <input
+                                            type="checkbox"
+                                            class="btn-check"
+                                            id="show-todos-btn"
+                                            autocomplete="off"
+                                            onchange="showTodoChange(event)"
+                                        />
+                                        <label
+                                            class="btn btn-outline-secondary btn-sm"
+                                            for="show-todos-btn"
+                                        >
+                                            Show completed todos
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-group" id="add-todo-list"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Refetch modal -->
         <div class="modal fade" id="refreshModal" tabindex="-1">
             <div class="modal-dialog">

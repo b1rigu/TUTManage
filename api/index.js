@@ -99,26 +99,6 @@ app.post("/update-userdata", async (req, res) => {
     }
 });
 
-app.post("/login-status", async (req, res) => {
-    try {
-        const email = req.body.email;
-        const password = req.body.password;
-        const hashedPassword = await hashPassword(password);
-        if (!hashedPassword) {
-            throw false;
-        }
-        const userRef = db.collection("userData").doc(email);
-        const user = await userRef.get();
-        if (user.exists && (await verifyPassword(password, user.data().password))) {
-            res.status(200).send(true);
-            return;
-        }
-        throw false;
-    } catch (error) {
-        res.status(403).send(false);
-    }
-});
-
 app.post("/get-userdata", async (req, res) => {
     try {
         const email = req.body.email;

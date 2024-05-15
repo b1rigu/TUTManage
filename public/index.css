@@ -56,3 +56,7 @@ img {
     color: white;
     margin: 0.25rem;
 }
+
+.modal-header {
+    border-bottom: 0 !important;
+}

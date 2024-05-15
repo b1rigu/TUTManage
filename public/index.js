@@ -10,16 +10,76 @@ let isLoggedIn = false;
 let currentClassDataCache;
 let showCompletedTodos = false;
 
+// UTIL FUNCTIONS
+function createCell(text) {
+    let newCell = document.createElement("td");
+    newCell.innerHTML = text;
+    return newCell;
+}
+
+function createRow() {
+    return document.createElement("tr");
+}
+
+// MAIN FUNCTIONS
 (async function () {
     await getLoginStatusAndData();
 
-    const username = localStorage.getItem("username");
-    const password = localStorage.getItem("password");
-    if (username && password) {
-        document.getElementById("username").value = username;
-        document.getElementById("password").value = password;
+    const kyomuUsername = localStorage.getItem("kyomuUsername");
+    const kyomuPassword = localStorage.getItem("kyomuPassword");
+    if (kyomuUsername && kyomuPassword) {
+        document.getElementById("kyomuUsername").value = kyomuUsername;
+        document.getElementById("kyomuPassword").value = kyomuPassword;
     }
 })();
+
+async function login(e) {
+    e.preventDefault();
+    const database_username = document.getElementById("database_username").value;
+    const database_password = document.getElementById("database_password").value;
+    localStorage.setItem("database_username", database_username);
+    localStorage.setItem("database_password", database_password);
+    document.getElementById("database_username").value = "";
+    document.getElementById("database_password").value = "";
+    await getLoginStatusAndData();
+}
+
+async function logout() {
+    localStorage.removeItem("database_username");
+    localStorage.removeItem("database_password");
+    isLoggedIn = false;
+    setLoginStatusFront();
+}
+
+async function signup(e) {
+    e.preventDefault();
+    const database_username_signup = document.getElementById("database_username_signup").value;
+    const database_password_signup = document.getElementById("database_password_signup").value;
+    document.getElementById("database_username_signup").value = "";
+    document.getElementById("database_password_signup").value = "";
+
+    if (database_username_signup && database_password_signup) {
+        const res = await fetch("/create-account", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                email: database_username_signup,
+                password: database_password_signup,
+            }),
+        });
+
+        if (res.ok) {
+            localStorage.setItem("database_username", database_username_signup);
+            localStorage.setItem("database_password", database_password_signup);
+            await getLoginStatusAndData();
+        } else {
+            const error = await res.text();
+            alert(error);
+        }
+    }
+}
 
 async function getLoginStatusAndData() {
     const database_username = localStorage.getItem("database_username");
@@ -45,23 +105,41 @@ async function getLoginStatusAndData() {
                 currentClassDataCache = classData;
             }
         } else {
-            isLoggedIn = false;
+            const error = await res.text();
+            if (error == "Username or password wrong") {
+                localStorage.removeItem("database_username");
+                localStorage.removeItem("database_password");
+                isLoggedIn = false;
+            }
+            alert(error);
         }
     }
 
-    setLoginStatusText();
+    setLoginStatusFront();
 }
 
-function setLoginStatusText() {
+function setLoginStatusFront() {
     if (isLoggedIn) {
         document.getElementById("login-status").innerHTML = "Logged in as: ";
         document.getElementById("loggedin-username").innerHTML =
             localStorage.getItem("database_username");
-        document.getElementById("loginlogout-btn").innerHTML = "Log out";
+        document.getElementById("login-btn-div").innerHTML = `
+            <button type="button" class="btn btn-link p-0" onclick="logout()">Logout</button>
+        `;
     } else {
-        document.getElementById("login-status").innerHTML = "Logged out: ";
+        document.getElementById("login-status").innerHTML = "Logged out ";
         document.getElementById("loggedin-username").innerHTML = "";
-        document.getElementById("loginlogout-btn").innerHTML = "Log in";
+        document.getElementById("login-btn-div").innerHTML = `
+            <button
+                type="button"
+                class="btn btn-link p-0"
+                data-bs-toggle="modal"
+                data-bs-target="#loginModal"
+            >Login</button>
+        `;
+        const table = document.getElementById("cirriculum-table").querySelector("tbody");
+        table.innerHTML = "";
+        document.getElementById("total-credits").innerHTML = "0";
     }
 }
 
@@ -119,16 +197,6 @@ function setDataToTable(data) {
     });
 
     document.getElementById("total-credits").innerHTML = totalCredits;
-}
-
-function createCell(text) {
-    let newCell = document.createElement("td");
-    newCell.innerHTML = text;
-    return newCell;
-}
-
-function createRow() {
-    return document.createElement("tr");
 }
 
 async function getClassesManual(e) {
@@ -247,16 +315,17 @@ async function getClassesManual(e) {
     setDataToTable(currentClassDataCache);
 }
 
-async function getClasses(e) {
+async function getClassesAuto(e) {
+    // Currently not working on vercel free plan
     e.preventDefault();
     document.getElementById("total-credits").innerHTML = "0";
     const table = document.getElementById("cirriculum-table").querySelector("tbody");
     table.innerHTML = "";
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
+    const kyomuUsername = document.getElementById("kyomuUsername").value;
+    const kyomuPassword = document.getElementById("kyomuPassword").value;
     const onetimepass = document.getElementById("onetimepass").value;
-    localStorage.setItem("username", username);
-    localStorage.setItem("password", password);
+    localStorage.setItem("kyomuUsername", kyomuUsername);
+    localStorage.setItem("kyomuPassword", kyomuPassword);
 
     const res = await fetch("/get-classes", {
         method: "POST",
@@ -264,8 +333,8 @@ async function getClasses(e) {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            username,
-            password,
+            username: kyomuUsername,
+            password: kyomuPassword,
             onetimepass,
         }),
     });
@@ -337,12 +406,20 @@ async function updateClassDataOnDatabase(classData) {
             body: JSON.stringify({
                 email: database_username,
                 password: database_password,
-                data: classData,
+                data: JSON.stringify(classData),
             }),
         });
 
         if (res.ok) {
             currentClassDataCache = classData;
+        } else {
+            const error = await res.text();
+            if (error == "Username or password wrong") {
+                localStorage.removeItem("database_username");
+                localStorage.removeItem("database_password");
+                isLoggedIn = false;
+            }
+            alert(error);
         }
     }
 }

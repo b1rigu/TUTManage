@@ -91,11 +91,10 @@
                                             <label class="form-label">
                                                 - Go to the timetable section of the kyomu website
                                             </label>
+                                            <label class="form-label"> - Open inspect menu </label>
                                             <label class="form-label">
-                                                - Open inspect menu
-                                            </label>
-                                            <label class="form-label">
-                                                - Copy the raw html of the website and paste it below
+                                                - Copy the raw html of the website and paste it
+                                                below
                                             </label>
                                         </div>
                                         <div class="mb-3">
@@ -183,10 +182,11 @@
                     </div>
                 </div>
             </div>
-            <button type="button" class="btn btn-info mx-2" onclick="backupData()">
-                Backup data
-            </button>
             <h3 class="m-0">Total credits: <span id="total-credits"></span></h3>
+            <h5 class="ms-auto mb-0">
+                <span id="login-status"></span><span class="pe-3" id="loggedin-username"></span
+                ><button id="loginlogout-btn" type="button" class="btn btn-link p-0"></button>
+            </h5>
         </div>
         <div class="container p-2">
             <table class="table table-striped table-primary" id="cirriculum-table">

@@ -56,7 +56,7 @@ app.post("/create-account", async (req, res) => {
         const password = req.body.password;
         const hashedPassword = await hashPassword(password);
         if (!hashedPassword) {
-            throw new Error("Error hashing password");
+            throw "Error hashing password";
         }
         const userRef = db.collection("userData").doc(email);
         if (!(await userRef.get()).exists) {
@@ -81,12 +81,12 @@ app.post("/update-userdata", async (req, res) => {
         const password = req.body.password;
         const hashedPassword = await hashPassword(password);
         if (!hashedPassword) {
-            throw new Error("Error hashing password");
+            throw "Error hashing password";
         }
         const data = req.body.data;
         const userRef = db.collection("userData").doc(email);
         const user = await userRef.get();
-        if (user.exists && await verifyPassword(password, user.data().password)) {
+        if (user.exists && (await verifyPassword(password, user.data().password))) {
             const response = await userRef.update({
                 data: data,
             });
@@ -99,17 +99,37 @@ app.post("/update-userdata", async (req, res) => {
     }
 });
 
-app.get("/get-userdata", async (req, res) => {
+app.post("/login-status", async (req, res) => {
     try {
         const email = req.body.email;
         const password = req.body.password;
         const hashedPassword = await hashPassword(password);
         if (!hashedPassword) {
-            throw new Error("Error hashing password");
+            throw false;
         }
         const userRef = db.collection("userData").doc(email);
         const user = await userRef.get();
-        if (user.exists && await verifyPassword(password, user.data().password)) {
+        if (user.exists && (await verifyPassword(password, user.data().password))) {
+            res.status(200).send(true);
+            return;
+        }
+        throw false;
+    } catch (error) {
+        res.status(403).send(false);
+    }
+});
+
+app.post("/get-userdata", async (req, res) => {
+    try {
+        const email = req.body.email;
+        const password = req.body.password;
+        const hashedPassword = await hashPassword(password);
+        if (!hashedPassword) {
+            throw "Error hashing password";
+        }
+        const userRef = db.collection("userData").doc(email);
+        const user = await userRef.get();
+        if (user.exists && (await verifyPassword(password, user.data().password))) {
             res.status(200).json(user.data().data);
             return;
         }

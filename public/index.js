@@ -1,4 +1,3 @@
-const baseUrl = "/";
 const periods = [
     "08:50 - 10:20",
     "10:30 - 12:00",
@@ -7,12 +6,12 @@ const periods = [
     "16:20 - 17:50",
     "18:00 - 19:30",
 ];
+let isLoggedIn = false;
+let currentClassDataCache;
+let showCompletedTodos = false;
 
 (async function () {
-    const classData = getClassDataFromLocalStorage();
-    if (classData) {
-        addData(classData);
-    }
+    await getLoginStatusAndData();
 
     const username = localStorage.getItem("username");
     const password = localStorage.getItem("password");
@@ -20,11 +19,53 @@ const periods = [
         document.getElementById("username").value = username;
         document.getElementById("password").value = password;
     }
-
-    document.getElementById("onetimepass-field").style.display = "block";
 })();
 
-function addData(data) {
+async function getLoginStatusAndData() {
+    const database_username = localStorage.getItem("database_username");
+    const database_password = localStorage.getItem("database_password");
+    if (database_username && database_password) {
+        const res = await fetch("/get-userdata", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                email: database_username,
+                password: database_password,
+            }),
+        });
+
+        if (res.ok) {
+            const resJson = await res.json();
+            isLoggedIn = true;
+            if (resJson != "") {
+                const classData = JSON.parse(resJson);
+                setDataToTable(classData);
+                currentClassDataCache = classData;
+            }
+        } else {
+            isLoggedIn = false;
+        }
+    }
+
+    setLoginStatusText();
+}
+
+function setLoginStatusText() {
+    if (isLoggedIn) {
+        document.getElementById("login-status").innerHTML = "Logged in as: ";
+        document.getElementById("loggedin-username").innerHTML =
+            localStorage.getItem("database_username");
+        document.getElementById("loginlogout-btn").innerHTML = "Log out";
+    } else {
+        document.getElementById("login-status").innerHTML = "Logged out: ";
+        document.getElementById("loggedin-username").innerHTML = "";
+        document.getElementById("loginlogout-btn").innerHTML = "Log in";
+    }
+}
+
+function setDataToTable(data) {
     let totalCredits = 0;
     const table = document.getElementById("cirriculum-table").querySelector("tbody");
     table.innerHTML = "";
@@ -88,15 +129,6 @@ function createCell(text) {
 
 function createRow() {
     return document.createElement("tr");
-}
-
-function backupData() {
-    download(
-        "var data = " +
-            JSON.stringify(localStorage) +
-            ";Object.keys(data).forEach(function (k){localStorage.setItem(k, data[k]);});",
-        "backup.txt"
-    );
 }
 
 async function getClassesManual(e) {
@@ -207,12 +239,12 @@ async function getClassesManual(e) {
         alert("No class selected or failed");
         return;
     }
-    
+
     document.getElementById("total-credits").innerHTML = "0";
     const table = document.getElementById("cirriculum-table").querySelector("tbody");
     table.innerHTML = "";
-    saveClassDataToLocalStorage(classes);
-    addData(classes);
+    await processFetchedClassData(classes);
+    setDataToTable(currentClassDataCache);
 }
 
 async function getClasses(e) {
@@ -226,7 +258,7 @@ async function getClasses(e) {
     localStorage.setItem("username", username);
     localStorage.setItem("password", password);
 
-    const res = await fetch(baseUrl + "get-classes", {
+    const res = await fetch("/get-classes", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -245,78 +277,74 @@ async function getClasses(e) {
             alert("No class selected or failed");
             return;
         }
-        saveClassDataToLocalStorage(data);
-        addData(data);
+        await processFetchedClassData(data);
+        setDataToTable(currentClassDataCache);
     } else {
         alert(resJson.message);
     }
 }
 
-function download(text, name) {
-    const a = document.createElement("a");
-    const file = new Blob([text], { type: "text/plain" });
-    const url = URL.createObjectURL(file);
-    a.href = url;
-    a.download = name;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(function () {
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-    }, 0);
-}
-
 function verifyData(data) {
-    console.log(data);
     const classDataFlattened = data.flat();
     return !classDataFlattened.every((myClass) => myClass.classId == "");
 }
 
-function saveClassDataToLocalStorage(data) {
-    const existingClassData = getClassDataFromLocalStorage();
+async function processFetchedClassData(classData) {
+    const existingClassData = currentClassDataCache;
 
-    if (!existingClassData) {
-        localStorage.setItem("classData", JSON.stringify(data));
-        return;
+    if (existingClassData) {
+        const existingClassDataFlattened = existingClassData.flat();
+
+        classData.forEach((period, i) => {
+            period.forEach((singleClass, y) => {
+                if (singleClass.classId != "") {
+                    const existingClass = existingClassDataFlattened.find(
+                        (existingClass) => existingClass.classId == singleClass.classId
+                    );
+                    if (existingClass) {
+                        classData[i][y].classClassroomLink = existingClass.classClassroomLink;
+                        classData[i][y].classTodos = existingClass.classTodos;
+                    }
+                }
+
+                if (singleClass.secondHalfClassId != "") {
+                    const existingClass2 = existingClassDataFlattened.find(
+                        (existingClass2) =>
+                            existingClass2.secondHalfClassId == singleClass.secondHalfClassId
+                    );
+                    if (existingClass2) {
+                        classData[i][y].secondHalfClassClassroomLink =
+                            existingClass2.secondHalfClassClassroomLink;
+                        classData[i][y].secondHalfClassTodos = existingClass2.secondHalfClassTodos;
+                    }
+                }
+            });
+        });
     }
 
-    const existingClassDataFlattened = existingClassData.flat();
-
-    data.forEach((period, i) => {
-        period.forEach((singleClass, y) => {
-            if (singleClass.classId != "") {
-                const existingClass = existingClassDataFlattened.find(
-                    (existingClass) => existingClass.classId == singleClass.classId
-                );
-                if (existingClass) {
-                    data[i][y].classClassroomLink = existingClass.classClassroomLink;
-                    data[i][y].classTodos = existingClass.classTodos;
-                }
-            }
-
-            if (singleClass.secondHalfClassId != "") {
-                const existingClass2 = existingClassDataFlattened.find(
-                    (existingClass2) =>
-                        existingClass2.secondHalfClassId == singleClass.secondHalfClassId
-                );
-                if (existingClass2) {
-                    data[i][y].secondHalfClassClassroomLink =
-                        existingClass2.secondHalfClassClassroomLink;
-                    data[i][y].secondHalfClassTodos = existingClass2.secondHalfClassTodos;
-                }
-            }
-        });
-    });
-
-    localStorage.setItem("classData", JSON.stringify(data));
+    await updateClassDataOnDatabase(classData);
 }
 
-function getClassDataFromLocalStorage() {
-    const classData = localStorage.getItem("classData");
-    if (classData) {
-        return JSON.parse(classData);
+async function updateClassDataOnDatabase(classData) {
+    const database_username = localStorage.getItem("database_username");
+    const database_password = localStorage.getItem("database_password");
+    if (database_username && database_password) {
+        const res = await fetch("/update-userdata", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                email: database_username,
+                password: database_password,
+                data: classData,
+            }),
+        });
+
+        if (res.ok) {
+            currentClassDataCache = classData;
+        }
     }
-    return null;
 }
 
 function showTodoChange(event) {
@@ -336,8 +364,7 @@ function showTodoChange(event) {
     });
 }
 
-function todoChange(event, id) {
-    let classData = getClassDataFromLocalStorage();
+async function todoChange(event, id) {
     const todoLabelEl = document.querySelector(`#todo-label-${id}`);
     const iInput = editModal.querySelector("#edit-modal-i").value;
     const yInput = editModal.querySelector("#edit-modal-y").value;
@@ -346,9 +373,9 @@ function todoChange(event, id) {
     let todos;
 
     if (sInput == "false") {
-        todos = classData[iInput][yInput].classTodos;
+        todos = currentClassDataCache[iInput][yInput].classTodos;
     } else {
-        todos = classData[iInput][yInput].secondHalfClassTodos;
+        todos = currentClassDataCache[iInput][yInput].secondHalfClassTodos;
     }
 
     if (event.target.checked) {
@@ -359,9 +386,9 @@ function todoChange(event, id) {
         todos[Number(id)].isDone = false;
     }
 
-    localStorage.setItem("classData", JSON.stringify(classData));
+    await updateClassDataOnDatabase(currentClassDataCache);
 
-    addData(classData);
+    setDataToTable(currentClassDataCache);
 
     clearAndSetClassDataToModal({
         i: iInput,
@@ -370,9 +397,8 @@ function todoChange(event, id) {
     });
 }
 
-function todoDelete(id) {
+async function todoDelete(id) {
     if (confirm("Are you sure you want to delete?")) {
-        let classData = getClassDataFromLocalStorage();
         const iInput = editModal.querySelector("#edit-modal-i").value;
         const yInput = editModal.querySelector("#edit-modal-y").value;
         const sInput = editModal.querySelector("#edit-modal-s").value;
@@ -380,16 +406,16 @@ function todoDelete(id) {
         let todos;
 
         if (sInput == "false") {
-            todos = classData[iInput][yInput].classTodos;
+            todos = currentClassDataCache[iInput][yInput].classTodos;
         } else {
-            todos = classData[iInput][yInput].secondHalfClassTodos;
+            todos = currentClassDataCache[iInput][yInput].secondHalfClassTodos;
         }
 
         todos.splice(Number(id), 1);
 
-        localStorage.setItem("classData", JSON.stringify(classData));
+        await updateClassDataOnDatabase(currentClassDataCache);
 
-        addData(classData);
+        setDataToTable(currentClassDataCache);
 
         clearAndSetClassDataToModal({
             i: iInput,
@@ -429,32 +455,31 @@ function addTodo(id, text, isDone = false) {
     addTodoList.innerHTML = addTodoHtml + addTodoList.innerHTML;
 }
 
-function addAndSaveTodoFromUserInput() {
+async function addAndSaveTodoFromUserInput() {
     const todoInputBox = editModal.querySelector("#add-todo-box");
 
     if (todoInputBox.value == "") return;
 
-    let classData = getClassDataFromLocalStorage();
     const iInput = editModal.querySelector("#edit-modal-i").value;
     const yInput = editModal.querySelector("#edit-modal-y").value;
     const sInput = editModal.querySelector("#edit-modal-s").value;
 
     if (sInput == "false") {
-        classData[iInput][yInput].classTodos.push({
+        currentClassDataCache[iInput][yInput].classTodos.push({
             text: todoInputBox.value,
             isDone: false,
         });
     } else {
-        classData[iInput][yInput].secondHalfClassTodos.push({
+        currentClassDataCache[iInput][yInput].secondHalfClassTodos.push({
             text: todoInputBox.value,
             isDone: false,
         });
     }
 
     todoInputBox.value = "";
-    localStorage.setItem("classData", JSON.stringify(classData));
+    await updateClassDataOnDatabase(currentClassDataCache);
 
-    addData(classData);
+    setDataToTable(currentClassDataCache);
     clearAndSetClassDataToModal({
         i: iInput,
         y: yInput,
@@ -462,45 +487,38 @@ function addAndSaveTodoFromUserInput() {
     });
 }
 
-function saveClassClassroomData() {
-    let classData = getClassDataFromLocalStorage();
+async function saveClassClassroomData() {
     const classroomLinkInput = editModal.querySelector("#classroom-link").value;
     const iInput = editModal.querySelector("#edit-modal-i").value;
     const yInput = editModal.querySelector("#edit-modal-y").value;
     const sInput = editModal.querySelector("#edit-modal-s").value;
 
     if (sInput == "false") {
-        classData[iInput][yInput].classClassroomLink = classroomLinkInput;
+        currentClassDataCache[iInput][yInput].classClassroomLink = classroomLinkInput;
     } else {
-        classData[iInput][yInput].secondHalfClassClassroomLink = classroomLinkInput;
+        currentClassDataCache[iInput][yInput].secondHalfClassClassroomLink = classroomLinkInput;
     }
 
-    localStorage.setItem("classData", JSON.stringify(classData));
+    await updateClassDataOnDatabase(currentClassDataCache);
 
-    if (classData) {
-        addData(classData);
-    }
+    setDataToTable(currentClassDataCache);
 }
 
-let showCompletedTodos = false;
-
 function clearAndSetClassDataToModal({ i, y, s }) {
-    const classData = getClassDataFromLocalStorage();
-
     let className = "";
     let classroomLink = "";
     let todos = [];
 
     if (s == "false") {
-        className = classData[i][y].className;
-        classroomLink = classData[i][y].classClassroomLink;
-        todos = classData[i][y].classTodos.map((todo, index) => {
+        className = currentClassDataCache[i][y].className;
+        classroomLink = currentClassDataCache[i][y].classClassroomLink;
+        todos = currentClassDataCache[i][y].classTodos.map((todo, index) => {
             return { ...todo, origIndex: index };
         });
     } else {
-        className = classData[i][y].secondHalfClassName;
-        classroomLink = classData[i][y].secondHalfClassClassroomLink;
-        todos = classData[i][y].secondHalfClassTodos.map((todo, index) => {
+        className = currentClassDataCache[i][y].secondHalfClassName;
+        classroomLink = currentClassDataCache[i][y].secondHalfClassClassroomLink;
+        todos = currentClassDataCache[i][y].secondHalfClassTodos.map((todo, index) => {
             return { ...todo, origIndex: index };
         });
     }

@@ -143,6 +143,7 @@ function setLoginStatusFront() {
         document.getElementById("login-btn-div").innerHTML = `
             <button type="button" class="btn btn-link p-0" onclick="logout()">Logout</button>
         `;
+        document.getElementById("update-class-data-div").style.display = "block";
     } else {
         document.getElementById("login-status").innerHTML = "Logged out ";
         document.getElementById("loggedin-username").innerHTML = "";
@@ -157,6 +158,7 @@ function setLoginStatusFront() {
         const table = document.getElementById("cirriculum-table").querySelector("tbody");
         table.innerHTML = "";
         document.getElementById("total-credits").innerHTML = "0";
+        document.getElementById("update-class-data-div").style.display = "none";
     }
 }
 

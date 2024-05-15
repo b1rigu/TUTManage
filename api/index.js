@@ -3,6 +3,7 @@ import { getClasses } from "./scraper.js";
 import path from "path";
 import { readFile } from "fs/promises";
 import admin from "firebase-admin";
+import argon2 from "argon2";
 
 const app = express();
 const __dirname = path.resolve();
@@ -29,24 +30,48 @@ app.post("/get-classes", async (req, res) => {
     res.status(200).json(allClasses);
 });
 
+async function verifyPassword(plainPassword, hashedPassword) {
+    try {
+        const match = await argon2.verify(hashedPassword, plainPassword);
+        return match; // True if passwords match, False otherwise
+    } catch (err) {
+        console.error(err);
+        return false; // Or handle the error appropriately
+    }
+}
+
+async function hashPassword(plainPassword) {
+    try {
+        const hash = await argon2.hash(plainPassword);
+        return hash;
+    } catch (err) {
+        console.error(err);
+        return null; // Or handle the error appropriately
+    }
+}
+
 app.post("/create-account", async (req, res) => {
     try {
         const email = req.body.email;
         const password = req.body.password;
+        const hashedPassword = await hashPassword(password);
+        if (!hashedPassword) {
+            throw new Error("Error hashing password");
+        }
         const userRef = db.collection("userData").doc(email);
         if (!(await userRef.get()).exists) {
             const userJson = {
-                email,
-                password,
+                email: email,
+                password: hashedPassword,
                 data: "",
             };
             const response = await db.collection("userData").doc(email).set(userJson);
-            res.send(response);
+            res.status(200).send(response);
             return;
         }
-        res.send("User already exists");
+        throw "User already exists";
     } catch (error) {
-        res.send(error);
+        res.status(400).send(error);
     }
 });
 
@@ -54,19 +79,23 @@ app.post("/update-userdata", async (req, res) => {
     try {
         const email = req.body.email;
         const password = req.body.password;
+        const hashedPassword = await hashPassword(password);
+        if (!hashedPassword) {
+            throw new Error("Error hashing password");
+        }
         const data = req.body.data;
         const userRef = db.collection("userData").doc(email);
         const user = await userRef.get();
-        if (user.exists && user.data().password == password) {
+        if (user.exists && await verifyPassword(password, user.data().password)) {
             const response = await userRef.update({
                 data: data,
             });
-            res.send(response);
+            res.status(200).send(response);
             return;
         }
-        res.send("Username or password wrong");
+        throw "Username or password wrong";
     } catch (error) {
-        res.send(error);
+        res.status(403).send(error);
     }
 });
 
@@ -74,15 +103,19 @@ app.get("/get-userdata", async (req, res) => {
     try {
         const email = req.body.email;
         const password = req.body.password;
+        const hashedPassword = await hashPassword(password);
+        if (!hashedPassword) {
+            throw new Error("Error hashing password");
+        }
         const userRef = db.collection("userData").doc(email);
         const user = await userRef.get();
-        if (user.exists && user.data().password == password) {
+        if (user.exists && await verifyPassword(password, user.data().password)) {
             res.status(200).json(user.data().data);
             return;
         }
-        res.send("Username or password wrong");
+        throw "Username or password wrong";
     } catch (error) {
-        res.send(error);
+        res.status(403).send(error);
     }
 });
 

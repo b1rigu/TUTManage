@@ -72,3 +72,7 @@ img {
 .row-box {
     min-width: 180px;
 }
+
+.modal {
+    z-index: 9999;
+}

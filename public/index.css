@@ -60,3 +60,11 @@ img {
 .modal-header {
     border-bottom: 0 !important;
 }
+
+.non-loading {
+    display: block;
+}
+
+.loading {
+    display: none;
+}

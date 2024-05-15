@@ -37,7 +37,8 @@
                 Update Classes from Kyomu
             </button>
             <h3 class="m-0">Total credits: <span id="total-credits"></span></h3>
-            <h5 class="ms-auto mb-0">
+            <div class="ms-auto mb-0 spinner-border loading" role="status"></div>
+            <h5 class="ms-auto mb-0 non-loading">
                 <span id="login-status"></span>
                 <span class="pe-3" id="loggedin-username"></span>
                 <div id="login-btn-div"></div>
@@ -213,11 +214,17 @@
                             </button>
                             <button
                                 type="button"
-                                class="btn btn-primary"
+                                class="btn btn-primary non-loading"
                                 onclick="getClassesManual(event)"
-                                data-bs-dismiss="modal"
                             >
                                 Update
+                            </button>
+                            <button class="btn btn-primary loading" type="button" disabled>
+                                <span
+                                    class="spinner-border spinner-border-sm"
+                                    aria-hidden="true"
+                                ></span>
+                                <span role="status">Updating...</span>
                             </button>
                         </div>
                     </div>
@@ -260,11 +267,17 @@
                             </button>
                             <button
                                 type="button"
-                                class="btn btn-primary"
+                                class="btn btn-primary non-loading"
                                 onclick="getClassesAuto(event)"
-                                data-bs-dismiss="modal"
                             >
                                 Update
+                            </button>
+                            <button class="btn btn-primary loading" type="button" disabled>
+                                <span
+                                    class="spinner-border spinner-border-sm"
+                                    aria-hidden="true"
+                                ></span>
+                                <span role="status">Updating...</span>
                             </button>
                         </div>
                     </div>
@@ -352,11 +365,17 @@
                             </button>
                             <button
                                 type="button"
-                                class="btn btn-primary"
+                                class="btn btn-primary non-loading"
                                 onclick="login(event)"
-                                data-bs-dismiss="modal"
                             >
                                 Login
+                            </button>
+                            <button class="btn btn-primary loading" type="button" disabled>
+                                <span
+                                    class="spinner-border spinner-border-sm"
+                                    aria-hidden="true"
+                                ></span>
+                                <span role="status">Logging in...</span>
                             </button>
                         </div>
                     </div>
@@ -397,16 +416,38 @@
                             </button>
                             <button
                                 type="button"
-                                class="btn btn-primary"
+                                class="btn btn-primary non-loading"
                                 onclick="signup(event)"
-                                data-bs-dismiss="modal"
                             >
                                 Signup
+                            </button>
+                            <button class="btn btn-primary loading" type="button" disabled>
+                                <span
+                                    class="spinner-border spinner-border-sm"
+                                    aria-hidden="true"
+                                ></span>
+                                <span role="status">Signing up...</span>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Toast template -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="alert-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" ref={toastRef}>
+            <div class="toast-header">
+                <strong class="me-auto">Alert</strong>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="toast"
+                    aria-label="Close"
+                ></button>
+            </div>
+            <div class="toast-body" id="alert-toast-msg"></div>
         </div>
     </div>
 </html>

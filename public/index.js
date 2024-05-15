@@ -21,6 +21,13 @@ function createRow() {
     return document.createElement("tr");
 }
 
+function showToast(text) {
+    const alertToast = document.getElementById("alert-toast");
+    document.getElementById("alert-toast-msg").innerHTML = text;
+    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(alertToast);
+    toastBootstrap.show();
+}
+
 // MAIN FUNCTIONS
 (async function () {
     await getLoginStatusAndData();
@@ -39,7 +46,6 @@ async function login(e) {
     const database_password = document.getElementById("database_password").value;
     localStorage.setItem("database_username", database_username);
     localStorage.setItem("database_password", database_password);
-    document.getElementById("database_username").value = "";
     document.getElementById("database_password").value = "";
     await getLoginStatusAndData();
 }
@@ -55,10 +61,10 @@ async function signup(e) {
     e.preventDefault();
     const database_username_signup = document.getElementById("database_username_signup").value;
     const database_password_signup = document.getElementById("database_password_signup").value;
-    document.getElementById("database_username_signup").value = "";
     document.getElementById("database_password_signup").value = "";
 
     if (database_username_signup && database_password_signup) {
+        setLoadingStatus(true);
         const res = await fetch("/create-account", {
             method: "POST",
             headers: {
@@ -69,6 +75,7 @@ async function signup(e) {
                 password: database_password_signup,
             }),
         });
+        setLoadingStatus(false);
 
         if (res.ok) {
             localStorage.setItem("database_username", database_username_signup);
@@ -76,8 +83,10 @@ async function signup(e) {
             await getLoginStatusAndData();
         } else {
             const error = await res.text();
-            alert(error);
+            showToast(error);
         }
+    } else {
+        setLoadingStatus(false);
     }
 }
 
@@ -85,6 +94,7 @@ async function getLoginStatusAndData() {
     const database_username = localStorage.getItem("database_username");
     const database_password = localStorage.getItem("database_password");
     if (database_username && database_password) {
+        setLoadingStatus(true);
         const res = await fetch("/get-userdata", {
             method: "POST",
             headers: {
@@ -95,10 +105,15 @@ async function getLoginStatusAndData() {
                 password: database_password,
             }),
         });
+        setLoadingStatus(false);
 
         if (res.ok) {
             const resJson = await res.json();
             isLoggedIn = true;
+
+            const loginModal = bootstrap.Modal.getOrCreateInstance("#loginModal");
+            loginModal.hide();
+
             if (resJson != "") {
                 const classData = JSON.parse(resJson);
                 setDataToTable(classData);
@@ -111,8 +126,10 @@ async function getLoginStatusAndData() {
                 localStorage.removeItem("database_password");
                 isLoggedIn = false;
             }
-            alert(error);
+            showToast(error);
         }
+    } else {
+        setLoadingStatus(false);
     }
 
     setLoginStatusFront();
@@ -140,6 +157,24 @@ function setLoginStatusFront() {
         const table = document.getElementById("cirriculum-table").querySelector("tbody");
         table.innerHTML = "";
         document.getElementById("total-credits").innerHTML = "0";
+    }
+}
+
+function setLoadingStatus(isLoading) {
+    if (isLoading) {
+        document.querySelectorAll(".non-loading").forEach((el) => {
+            el.style.display = "none";
+        });
+        document.querySelectorAll(".loading").forEach((el) => {
+            el.style.display = "inline-block";
+        });
+    } else {
+        document.querySelectorAll(".non-loading").forEach((el) => {
+            el.style.display = "block";
+        });
+        document.querySelectorAll(".loading").forEach((el) => {
+            el.style.display = "none";
+        });
     }
 }
 
@@ -304,7 +339,7 @@ async function getClassesManual(e) {
     }
 
     if (!verifyData(classes)) {
-        alert("No class selected or failed");
+        showToast("No class selected or failed");
         return;
     }
 
@@ -327,6 +362,7 @@ async function getClassesAuto(e) {
     localStorage.setItem("kyomuUsername", kyomuUsername);
     localStorage.setItem("kyomuPassword", kyomuPassword);
 
+    setLoadingStatus(true);
     const res = await fetch("/get-classes", {
         method: "POST",
         headers: {
@@ -338,18 +374,19 @@ async function getClassesAuto(e) {
             onetimepass,
         }),
     });
+    setLoadingStatus(false);
 
     const resJson = await res.json();
     if (resJson.status == "success") {
         const data = resJson.data;
         if (!verifyData(data)) {
-            alert("No class selected or failed");
+            showToast("No class selected or failed");
             return;
         }
         await processFetchedClassData(data);
         setDataToTable(currentClassDataCache);
     } else {
-        alert(resJson.message);
+        showToast(resJson.message);
     }
 }
 
@@ -398,6 +435,7 @@ async function updateClassDataOnDatabase(classData) {
     const database_username = localStorage.getItem("database_username");
     const database_password = localStorage.getItem("database_password");
     if (database_username && database_password) {
+        setLoadingStatus(true);
         const res = await fetch("/update-userdata", {
             method: "POST",
             headers: {
@@ -409,6 +447,7 @@ async function updateClassDataOnDatabase(classData) {
                 data: JSON.stringify(classData),
             }),
         });
+        setLoadingStatus(false);
 
         if (res.ok) {
             currentClassDataCache = classData;
@@ -419,8 +458,10 @@ async function updateClassDataOnDatabase(classData) {
                 localStorage.removeItem("database_password");
                 isLoggedIn = false;
             }
-            alert(error);
+            showToast(error);
         }
+    } else {
+        setLoadingStatus(false);
     }
 }
 

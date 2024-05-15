@@ -48,36 +48,137 @@
                                 aria-label="Close"
                             ></button>
                         </div>
-                        <div class="modal-body">
-                            <form>
-                                <div class="mb-3">
-                                    <label for="username" class="col-form-label">Username:</label>
-                                    <input type="text" class="form-control" id="username" />
-                                </div>
-                                <div class="mb-3">
-                                    <label for="password" class="col-form-label">Password:</label>
-                                    <input type="password" class="form-control" id="password" />
-                                </div>
-                                <div class="mb-3" id="onetimepass-field">
-                                    <label for="onetimepass" class="col-form-label"
-                                        >One Time Pass:</label
-                                    >
-                                    <input type="text" class="form-control" id="onetimepass" />
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                Close
-                            </button>
-                            <button
-                                type="button"
-                                class="btn btn-primary"
-                                onclick="getClasses(event)"
-                                data-bs-dismiss="modal"
+                        <nav>
+                            <div class="nav nav-tabs mt-1" id="nav-tab" role="tablist">
+                                <button
+                                    class="nav-link active"
+                                    id="nav-method1-tab"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#nav-method1"
+                                    type="button"
+                                    role="tab"
+                                    aria-controls="nav-method1"
+                                    aria-selected="true"
+                                >
+                                    Manual
+                                </button>
+                                <button
+                                    class="nav-link"
+                                    id="nav-method2-tab"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#nav-method2"
+                                    type="button"
+                                    role="tab"
+                                    aria-controls="nav-method2"
+                                    aria-selected="false"
+                                    disabled
+                                >
+                                    Auto (disabled currently)
+                                </button>
+                            </div>
+                        </nav>
+                        <div class="tab-content" id="nav-tabContent">
+                            <div
+                                class="tab-pane fade show active"
+                                id="nav-method1"
+                                role="tabpanel"
+                                aria-labelledby="nav-method1-tab"
+                                tabindex="0"
                             >
-                                Fetch
-                            </button>
+                                <div class="modal-body">
+                                    <form>
+                                        <div class="mb-3">
+                                            <label class="form-label">
+                                                - Go to the timetable section of the kyomu website
+                                            </label>
+                                            <label class="form-label">
+                                                - Open inspect menu
+                                            </label>
+                                            <label class="form-label">
+                                                - Copy the raw html of the website and paste it below
+                                            </label>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="username" class="col-form-label"
+                                                >Raw html:</label
+                                            >
+                                            <input type="text" class="form-control" id="rawhtml" />
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal"
+                                    >
+                                        Close
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary"
+                                        onclick="getClassesManual(event)"
+                                        data-bs-dismiss="modal"
+                                    >
+                                        Fetch
+                                    </button>
+                                </div>
+                            </div>
+                            <div
+                                class="tab-pane fade"
+                                id="nav-method2"
+                                role="tabpanel"
+                                aria-labelledby="nav-method2-tab"
+                                tabindex="0"
+                            >
+                                <div class="modal-body">
+                                    <form>
+                                        <div class="mb-3">
+                                            <label for="username" class="col-form-label"
+                                                >Username:</label
+                                            >
+                                            <input type="text" class="form-control" id="username" />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="password" class="col-form-label"
+                                                >Password:</label
+                                            >
+                                            <input
+                                                type="password"
+                                                class="form-control"
+                                                id="password"
+                                            />
+                                        </div>
+                                        <div class="mb-3" id="onetimepass-field">
+                                            <label for="onetimepass" class="col-form-label"
+                                                >One Time Pass:</label
+                                            >
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                id="onetimepass"
+                                            />
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal"
+                                    >
+                                        Close
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary"
+                                        onclick="getClasses(event)"
+                                        data-bs-dismiss="modal"
+                                    >
+                                        Fetch
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

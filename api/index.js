@@ -1,19 +1,18 @@
 import express from "express";
 import { getClasses } from "./scraper.js";
 import path from "path";
-import { readFile } from "fs/promises";
 import admin from "firebase-admin";
 import argon2 from "argon2";
 
 const app = express();
 const __dirname = path.resolve();
 
-const credentials = JSON.parse(
-    await readFile(new URL("../serviceAccountKey.json", import.meta.url))
+const serviceAccount = JSON.parse(
+    process.env.FIREBASE_SERVICE_ACCOUNT_KEY
 );
 
 admin.initializeApp({
-    credential: admin.credential.cert(credentials),
+    credential: admin.credential.cert(serviceAccount),
 });
 
 const db = admin.firestore();

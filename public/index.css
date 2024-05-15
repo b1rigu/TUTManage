@@ -68,3 +68,7 @@ img {
 .loading {
     display: none;
 }
+
+.row-box {
+    min-width: 180px;
+}

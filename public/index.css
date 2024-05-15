@@ -72,3 +72,7 @@ img {
 .row-box {
     min-width: 180px;
 }
+
+#update-class-data-div {
+    display: none;
+}

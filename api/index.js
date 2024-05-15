@@ -3,13 +3,12 @@ import { getClasses } from "./scraper.js";
 import path from "path";
 import admin from "firebase-admin";
 import argon2 from "argon2";
+import dotenv from "dotenv";
 
+dotenv.config();
 const app = express();
 const __dirname = path.resolve();
-
-const serviceAccount = JSON.parse(
-    process.env.FIREBASE_SERVICE_ACCOUNT_KEY
-);
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),

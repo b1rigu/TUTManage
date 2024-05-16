@@ -12,6 +12,8 @@ const app = express();
 const __dirname = path.resolve();
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
 const secretKey = generateJwtSecretKey();
+const emailPattern =
+    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -90,10 +92,16 @@ async function hashPassword(plainPassword) {
 app.post("/create-account", async (req, res) => {
     try {
         const { email, password } = req.body;
+
+        if (!emailPattern.test(email)) {
+            throw "Enter a valid email address";
+        }
+
         const hashedPassword = await hashPassword(password);
         if (!hashedPassword) {
             throw "Error hashing password";
         }
+
         const userRef = db.collection("userData").doc(email);
         if (!(await userRef.get()).exists) {
             const userJson = {

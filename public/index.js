@@ -118,7 +118,9 @@ async function signup(e) {
 
         if (res.status == 200) {
             localStorage.setItem("database_username", database_username_signup);
-            await getDataFromDatabase();
+            document.getElementById("database_username").value = database_username_signup;
+            document.getElementById("database_password").value = database_password_signup;
+            await login();
         } else {
             const error = await res.text();
             showToast(error);

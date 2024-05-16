@@ -17,8 +17,6 @@ if (process.env.CURRENT_ENV == "production") {
 
 const mainPageUrl = "https://kyomu.office.tut.ac.jp/portal/StudentApp/Top.aspx";
 
-// process.env.CURRENT_ENV != "production"
-
 const loginWithUserPass = async (page, username, password) => {
     const loginBtnSelector = "button[type='submit']";
     await page.waitForSelector(loginBtnSelector);
@@ -64,7 +62,7 @@ const checkIfOneTimePassNeeded = async (page, oneTimePass) => {
 export const getClasses = async (username, password, oneTimePass) => {
     let browser;
     if (process.env.CURRENT_ENV == "production") {
-        chromium.setHeadlessMode = true;
+        chromium.setHeadlessMode(true);
         browser = await puppeteer.launch({
             args: chromium.args,
             defaultViewport: chromium.defaultViewport,

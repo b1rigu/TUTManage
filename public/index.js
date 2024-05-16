@@ -297,6 +297,41 @@ function logout() {
     setLoginStatusFront();
 }
 
+async function resetPassword(e) {
+    e.preventDefault();
+    const resetEmail = document.getElementById("reset-email").value;
+    const newPassword = document.getElementById("new-password").value;
+    const newPasswordConfirm = document.getElementById("new-password-confirm").value;
+
+    if (resetEmail && newPassword && newPasswordConfirm && newPassword == newPasswordConfirm) {
+        document.getElementById("new-password").value = "";
+        document.getElementById("new-password-confirm").value = "";
+        setLoadingStatus(true);
+        const res = await fetch("/send-reset-password", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                email: resetEmail,
+                toPassword: newPassword,
+            }),
+        });
+        setLoadingStatus(false);
+
+        if (res.status == 200) {
+            showToast(
+                "Email will be sent if user is registered. Wait at least 30 seconds or check your spam folder too."
+            );
+        } else {
+            const error = await res.text();
+            showToast(error);
+        }
+    } else {
+        setLoadingStatus(false);
+    }
+}
+
 async function signup(e) {
     e.preventDefault();
     const database_username_signup = document.getElementById("database_username_signup").value;

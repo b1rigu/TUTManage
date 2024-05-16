@@ -5,6 +5,7 @@ import admin from "firebase-admin";
 import argon2 from "argon2";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import sgMail from "@sendgrid/mail";
 
 dotenv.config();
 const app = express();
@@ -13,6 +14,7 @@ const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
 const secretKey = process.env.JWT_SECRET_KEY;
 const emailPattern =
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -31,6 +33,19 @@ app.post("/get-classes", async (req, res) => {
     const allClasses = await getClasses(username, password, onetimepass);
     return res.status(200).json(allClasses);
 });
+
+function sendResetEmail(toEmail, resetLink) {
+    const msg = {
+        to: toEmail,
+        from: process.env.SENDGRID_FROM_EMAIL,
+        templateId: process.env.SENDGRID_TEMPLATE_ID,
+        dynamicTemplateData: {
+            username: toEmail,
+            resetLink: resetLink,
+        },
+    };
+    sgMail.send(msg);
+}
 
 async function verifyPassword(plainPassword, hashedPassword) {
     try {
@@ -69,6 +84,82 @@ function checkAuthentication(req, res, next) {
         next();
     });
 }
+
+app.get("/verify-reset-password/:token", async (req, res) => {
+    try {
+        const { token } = req.params;
+
+        if (token == null) return res.status(401).send("No Token Found");
+
+        const resetTokenRef = db.collection("resetTokens").doc(token);
+        const resetTokenJson = await resetTokenRef.get();
+        if (!resetTokenJson.exists) return res.status(401).send("No Token Found");
+        const resetTokenJsonData = resetTokenJson.data();
+
+        jwt.verify(token, secretKey, async (err, user) => {
+            if (err) return res.status(403).send("Invalid token");
+            const userRef = db.collection("userData").doc(resetTokenJsonData.email);
+            await userRef
+                .update({
+                    password: resetTokenJsonData.toPassword,
+                })
+                .catch((error) => {
+                    if (error.code === 5) {
+                        throw "User not found";
+                    } else {
+                        throw error.code;
+                    }
+                });
+            resetTokenRef.delete();
+
+            const querySnapshot = await db
+                .collection("refreshTokens")
+                .where("email", "==", resetTokenJsonData.email)
+                .get();
+
+            querySnapshot.forEach((doc) => {
+                doc.ref.delete();
+            });
+
+            return res
+                .status(200)
+                .send(
+                    "Your password has been reset. You can now login with your new password. You can close this window!"
+                );
+        });
+    } catch (error) {
+        res.status(400).send(error);
+    }
+});
+
+app.post("/send-reset-password", async (req, res) => {
+    try {
+        const { email, toPassword } = req.body;
+
+        const hashedPassword = await hashPassword(toPassword);
+        if (!hashedPassword) {
+            throw "Error hashing password";
+        }
+        const userRef = db.collection("userData").doc(email);
+        const user = await userRef.get();
+
+        if (user.exists) {
+            const resetToken = generateJWTToken(email, "1d");
+            const resetTokenJson = {
+                resetToken: resetToken,
+                email: email,
+                toPassword: hashedPassword,
+            };
+            await db.collection("resetTokens").doc(resetToken).set(resetTokenJson);
+            const resetLink = `${process.env.WEBHOST_ADDRESS}/verify-reset-password/${resetToken}`;
+            sendResetEmail(email, resetLink);
+        }
+
+        return res.sendStatus(200);
+    } catch (error) {
+        res.status(400).send(error);
+    }
+});
 
 app.post("/refresh-token", async (req, res) => {
     try {

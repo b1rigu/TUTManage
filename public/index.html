@@ -362,6 +362,18 @@
                             >
                                 Signup
                             </button>
+                            <button
+                                class="nav-link"
+                                id="nav-reset-btn"
+                                data-bs-toggle="tab"
+                                data-bs-target="#nav-reset"
+                                type="button"
+                                role="tab"
+                                aria-controls="nav-reset"
+                                aria-selected="false"
+                            >
+                                Reset Password
+                            </button>
                         </div>
                     </nav>
                     <div class="tab-content" id="login-nav-content">
@@ -475,6 +487,67 @@
                                 </button>
                             </div>
                         </div>
+                        <div
+                            class="tab-pane fade"
+                            id="nav-reset"
+                            role="tabpanel"
+                            aria-labelledby="nav-reset-btn"
+                            tabindex="0"
+                        >
+                            <div class="modal-body">
+                                <form>
+                                    <div class="mb-3">
+                                        <label for="reset_email" class="col-form-label"
+                                            >Email:</label
+                                        >
+                                        <input type="text" class="form-control" id="reset-email" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="new-password" class="col-form-label"
+                                            >New Password:</label
+                                        >
+                                        <input
+                                            type="password"
+                                            class="form-control"
+                                            id="new-password"
+                                        />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="new-password-confirm" class="col-form-label"
+                                            >Confirm Password:</label
+                                        >
+                                        <input
+                                            type="password"
+                                            class="form-control"
+                                            id="new-password-confirm"
+                                        />
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary"
+                                    data-bs-dismiss="modal"
+                                >
+                                    Close
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-primary non-loading"
+                                    onclick="resetPassword(event)"
+                                >
+                                    Send reset password link
+                                </button>
+                                <button class="btn btn-primary loading" type="button" disabled>
+                                    <span
+                                        class="spinner-border spinner-border-sm"
+                                        aria-hidden="true"
+                                    ></span>
+                                    <span role="status">Sending...</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -499,7 +572,7 @@
                         aria-label="Close"
                     ></button>
                 </div>
-                <div class="toast-body fw-bold text-danger" id="alert-toast-msg"></div>
+                <div class="toast-body" id="alert-toast-msg"></div>
             </div>
         </div>
     </body>

@@ -152,7 +152,7 @@ app.post("/send-reset-password", async (req, res) => {
                 },
             };
             await sgMail.send(msg).catch((error) => {
-                throw error;
+                throw process.env.SENDGRID_API_KEY;
             });
         }
 

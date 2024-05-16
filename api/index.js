@@ -76,10 +76,11 @@ app.post("/refresh-token", async (req, res) => {
         if (refreshToken == null) return res.sendStatus(401);
         const refreshTokenRef = db.collection("refreshTokens").doc(refreshToken);
         const refreshTokenJson = await refreshTokenRef.get();
-        if (!refreshTokenJson.exists || !refreshTokenJson.data().isActive) return res.sendStatus(403);
+        if (!refreshTokenJson.exists || !refreshTokenJson.data().isActive)
+            return res.sendStatus(403);
         jwt.verify(refreshToken, secretKey, (err, user) => {
             if (err) return res.sendStatus(403);
-            const accessToken = generateJWTToken(user.email, "10s");
+            const accessToken = generateJWTToken(user.email, "15m");
             return res.status(200).json({ accessToken });
         });
     } catch (error) {
@@ -109,7 +110,7 @@ app.post("/login", async (req, res) => {
             throw "Invalid email or password";
         }
 
-        const accessToken = generateJWTToken(email, "10s");
+        const accessToken = generateJWTToken(email, "15m");
         const refreshToken = generateJWTToken(email, "1y");
         const refreshTokenJson = {
             refreshToken: refreshToken,

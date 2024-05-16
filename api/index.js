@@ -40,13 +40,13 @@ function generateJwtSecretKey(length = 64) {
 async function checkAuthentication(req, userRef, user, email, password) {
     const token = req.headers["authorization"];
     if (token) {
-        const isVerified = jwt.verify(token, secretKey, (err, decoded) => {
+        const verificationResult = jwt.verify(token, secretKey, (err, decoded) => {
             if (err) {
-                return false;
+                return null;
             }
-            return true;
+            return decoded;
         });
-        if (isVerified) {
+        if (verificationResult && (await verifyPassword(password, verificationResult.password))) {
             return {
                 isAuthenticated: true,
                 data: null,
@@ -56,7 +56,13 @@ async function checkAuthentication(req, userRef, user, email, password) {
 
     const userLocal = user ? user : await userRef.get();
     if (userLocal.exists && (await verifyPassword(password, userLocal.data().password))) {
-        const token = jwt.sign({ email: email }, secretKey, { expiresIn: "1h" });
+        const token = jwt.sign(
+            { email: email, password: await hashPassword(password) },
+            secretKey,
+            {
+                expiresIn: "1h",
+            }
+        );
         return {
             isAuthenticated: true,
             data: token,

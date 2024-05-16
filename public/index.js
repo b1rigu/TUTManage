@@ -42,6 +42,7 @@ function showToast(text) {
 
 async function login(e) {
     e.preventDefault();
+    localStorage.removeItem("database_token");
     const database_username = document.getElementById("database_username").value;
     const database_password = document.getElementById("database_password").value;
     localStorage.setItem("database_username", database_username);
@@ -51,6 +52,7 @@ async function login(e) {
 }
 
 async function logout() {
+    localStorage.removeItem("database_token");
     localStorage.removeItem("database_username");
     localStorage.removeItem("database_password");
     isLoggedIn = false;
@@ -127,7 +129,8 @@ async function getLoginStatusAndData() {
             }
         } else {
             const error = await res.text();
-            if (error == "Username or password wrong") {
+            if (error == "Invalid email or password") {
+                localStorage.removeItem("database_token");
                 localStorage.removeItem("database_username");
                 localStorage.removeItem("database_password");
                 isLoggedIn = false;
@@ -169,7 +172,7 @@ async function updateClassDataOnDatabase(classData) {
             currentClassDataCache = classData;
         } else {
             const error = await res.text();
-            if (error == "Username or password wrong") {
+            if (error == "Invalid email or password") {
                 localStorage.removeItem("database_token");
                 localStorage.removeItem("database_username");
                 localStorage.removeItem("database_password");

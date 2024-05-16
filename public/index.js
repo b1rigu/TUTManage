@@ -163,7 +163,6 @@ async function updateClassDataOnDatabase(classData) {
 
         if (res.status == 200) {
             const token = await res.text();
-            console.log(token);
             if (token != null && token != "") {
                 localStorage.setItem("database_token", token);
             }

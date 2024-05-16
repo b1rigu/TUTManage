@@ -3,7 +3,7 @@
 
 A program to manage Toyohashi university of technology class schedule (There are 2 ways to fetch data)
 
-- Tutorial video (Youtube): **[TUTManage signup, class data import guide](https://youtu.be/zFP9d9iIYqg?si=PcDwEWnVFpLRc-ed)**
+- Tutorial video for manual data fetch (Youtube): **[TUTManage signup, manual class data import guide](https://youtu.be/zFP9d9iIYqg?si=PcDwEWnVFpLRc-ed)**
 
 
 ## Preview

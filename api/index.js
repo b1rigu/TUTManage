@@ -76,7 +76,7 @@ app.post("/refresh-token", async (req, res) => {
         if (refreshToken == null) return res.sendStatus(401);
         const refreshTokenRef = db.collection("refreshTokens").doc(refreshToken);
         const refreshTokenJson = await refreshTokenRef.get();
-        if (!refreshTokenJson.exists || !refreshTokenJson.data().isActive) return res.status(403);
+        if (!refreshTokenJson.exists || !refreshTokenJson.data().isActive) return res.sendStatus(403);
         jwt.verify(refreshToken, secretKey, (err, user) => {
             if (err) return res.sendStatus(403);
             const accessToken = generateJWTToken(user.email, "10s");

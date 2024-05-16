@@ -349,13 +349,20 @@ async function refreshAccessToken() {
         if (res.status == 200) {
             const resJson = await res.json();
             localStorage.setItem("database_accessToken", resJson.accessToken);
+            return true;
         } else {
             const error = await res.text();
             showToast(error);
+            if (res.status == 401 || res.status == 403) {
+                logout();
+            }
+            return false;
         }
     } else {
         setLoadingStatus(false);
     }
+
+    return false;
 }
 
 async function getDataFromDatabase() {
@@ -384,8 +391,9 @@ async function getDataFromDatabase() {
         } else {
             const error = await res.text();
             if (res.status == 401 || res.status == 403) {
-                await refreshAccessToken();
-                await getDataFromDatabase();
+                if (await refreshAccessToken()) {
+                    await getDataFromDatabase();
+                }
             } else if (res.status == 400) {
                 showToast(error);
                 logout();
@@ -423,8 +431,9 @@ async function updateClassDataOnDatabase(classData, previousClassData) {
             const error = await res.text();
 
             if (res.status == 401 || res.status == 403) {
-                await refreshAccessToken();
-                await updateClassDataOnDatabase(classData, previousClassData);
+                if (await refreshAccessToken()) {
+                    await updateClassDataOnDatabase(classData, previousClassData);
+                }
             } else if (res.status == 400) {
                 bootstrap.Modal.getOrCreateInstance("#editModal").hide();
                 bootstrap.Modal.getOrCreateInstance("#refreshModal").hide();

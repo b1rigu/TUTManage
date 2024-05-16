@@ -125,7 +125,7 @@ app.post("/update-userdata", async (req, res) => {
             if (token) {
                 res.status(200).send(token);
             } else {
-                res.status(200).send(null);
+                res.status(200).send("");
             }
             return;
         } else {

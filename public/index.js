@@ -163,13 +163,15 @@ async function updateClassDataOnDatabase(classData) {
 
         if (res.status == 200) {
             const token = await res.text();
-            currentClassDataCache = classData;
-            if (token != null) {
+            console.log(token);
+            if (token != null && token != "") {
                 localStorage.setItem("database_token", token);
             }
+            currentClassDataCache = classData;
         } else {
             const error = await res.text();
             if (error == "Username or password wrong") {
+                localStorage.removeItem("database_token");
                 localStorage.removeItem("database_username");
                 localStorage.removeItem("database_password");
                 isLoggedIn = false;

@@ -113,10 +113,17 @@
                                 <div class="col-4">
                                     <button
                                         type="button"
-                                        class="btn btn-primary w-100"
+                                        class="btn btn-primary w-100 non-loading"
                                         onclick="addAndSaveTodoFromUserInput()"
                                     >
                                         Add new
+                                    </button>
+                                    <button class="btn btn-primary loading w-100" type="button" disabled>
+                                        <span
+                                            class="spinner-border spinner-border-sm"
+                                            aria-hidden="true"
+                                        ></span>
+                                        <span role="status">Loading...</span>
                                     </button>
                                 </div>
                             </div>

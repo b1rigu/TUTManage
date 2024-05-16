@@ -4,11 +4,14 @@ import path from "path";
 import admin from "firebase-admin";
 import argon2 from "argon2";
 import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 dotenv.config();
 const app = express();
 const __dirname = path.resolve();
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+const secretKey = generateJwtSecretKey();
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -28,13 +31,49 @@ app.post("/get-classes", async (req, res) => {
     res.status(200).json(allClasses);
 });
 
+function generateJwtSecretKey(length = 64) {
+    return crypto.randomBytes(length).toString("hex");
+}
+
+async function checkAuthentication(req, userRef, user, email, password) {
+    const token = req.headers["authorization"];
+    if (token) {
+        const isVerified = jwt.verify(token, secretKey, (err, decoded) => {
+            if (err) {
+                return false;
+            }
+            return true;
+        });
+        if (isVerified) {
+            return {
+                isAuthenticated: true,
+                data: null,
+            };
+        }
+    }
+
+    const userLocal = user ? user : await userRef.get();
+    if (userLocal.exists && (await verifyPassword(password, userLocal.data().password))) {
+        const token = jwt.sign({ email: email }, secretKey, { expiresIn: "1h" });
+        return {
+            isAuthenticated: true,
+            data: token,
+        };
+    }
+
+    return {
+        isAuthenticated: false,
+        data: "Invalid email or password",
+    };
+}
+
 async function verifyPassword(plainPassword, hashedPassword) {
     try {
         const match = await argon2.verify(hashedPassword, plainPassword);
         return match; // True if passwords match, False otherwise
     } catch (err) {
         console.error(err);
-        return false; // Or handle the error appropriately
+        return false;
     }
 }
 
@@ -44,14 +83,13 @@ async function hashPassword(plainPassword) {
         return hash;
     } catch (err) {
         console.error(err);
-        return null; // Or handle the error appropriately
+        return null;
     }
 }
 
 app.post("/create-account", async (req, res) => {
     try {
-        const email = req.body.email;
-        const password = req.body.password;
+        const { email, password } = req.body;
         const hashedPassword = await hashPassword(password);
         if (!hashedPassword) {
             throw "Error hashing password";
@@ -75,23 +113,24 @@ app.post("/create-account", async (req, res) => {
 
 app.post("/update-userdata", async (req, res) => {
     try {
-        const email = req.body.email;
-        const password = req.body.password;
-        const hashedPassword = await hashPassword(password);
-        if (!hashedPassword) {
-            throw "Error hashing password";
-        }
+        const { email, password } = req.body;
         const data = req.body.data;
         const userRef = db.collection("userData").doc(email);
-        const user = await userRef.get();
-        if (user.exists && (await verifyPassword(password, user.data().password))) {
+        const authenticated = await checkAuthentication(req, userRef, null, email, password);
+        if (authenticated.isAuthenticated) {
             const response = await userRef.update({
                 data: data,
             });
-            res.status(200).send(response);
+            const token = authenticated.data;
+            if (token) {
+                res.status(200).send(token);
+            } else {
+                res.status(200).send(null);
+            }
             return;
+        } else {
+            throw authenticated.data;
         }
-        throw "Username or password wrong";
     } catch (error) {
         res.status(403).send(error);
     }
@@ -99,19 +138,27 @@ app.post("/update-userdata", async (req, res) => {
 
 app.post("/get-userdata", async (req, res) => {
     try {
-        const email = req.body.email;
-        const password = req.body.password;
-        const hashedPassword = await hashPassword(password);
-        if (!hashedPassword) {
-            throw "Error hashing password";
-        }
+        const { email, password } = req.body;
         const userRef = db.collection("userData").doc(email);
         const user = await userRef.get();
-        if (user.exists && (await verifyPassword(password, user.data().password))) {
-            res.status(200).json(user.data().data);
+        const authenticated = await checkAuthentication(req, userRef, user, email, password);
+        if (authenticated.isAuthenticated) {
+            const token = authenticated.data;
+            if (token) {
+                res.status(200).json({
+                    token: token,
+                    data: user.data().data,
+                });
+            } else {
+                res.status(200).json({
+                    token: null,
+                    data: user.data().data,
+                });
+            }
             return;
+        } else {
+            throw authenticated.data;
         }
-        throw "Username or password wrong";
     } catch (error) {
         res.status(403).send(error);
     }

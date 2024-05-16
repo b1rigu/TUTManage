@@ -77,7 +77,7 @@ async function signup(e) {
         });
         setLoadingStatus(false);
 
-        if (res.ok) {
+        if (res.status == 200) {
             localStorage.setItem("database_username", database_username_signup);
             localStorage.setItem("database_password", database_password_signup);
             await getLoginStatusAndData();
@@ -93,12 +93,14 @@ async function signup(e) {
 async function getLoginStatusAndData() {
     const database_username = localStorage.getItem("database_username");
     const database_password = localStorage.getItem("database_password");
+    const token = localStorage.getItem("database_token");
     if (database_username && database_password) {
         setLoadingStatus(true);
         const res = await fetch("/get-userdata", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                Authorization: token,
             },
             body: JSON.stringify({
                 email: database_username,
@@ -107,15 +109,19 @@ async function getLoginStatusAndData() {
         });
         setLoadingStatus(false);
 
-        if (res.ok) {
+        if (res.status == 200) {
             const resJson = await res.json();
             isLoggedIn = true;
 
             const loginModal = bootstrap.Modal.getOrCreateInstance("#loginModal");
             loginModal.hide();
 
-            if (resJson != "") {
-                const classData = JSON.parse(resJson);
+            if (resJson.token != null) {
+                localStorage.setItem("database_token", resJson.token);
+            }
+
+            if (resJson.data != "") {
+                const classData = JSON.parse(resJson.data);
                 setDataToTable(classData);
                 currentClassDataCache = classData;
             }
@@ -133,6 +139,46 @@ async function getLoginStatusAndData() {
     }
 
     setLoginStatusFront();
+}
+
+async function updateClassDataOnDatabase(classData) {
+    const database_username = localStorage.getItem("database_username");
+    const database_password = localStorage.getItem("database_password");
+    const token = localStorage.getItem("database_token");
+    if (database_username && database_password) {
+        setLoadingStatus(true);
+        const res = await fetch("/update-userdata", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: token,
+            },
+            body: JSON.stringify({
+                email: database_username,
+                password: database_password,
+                data: JSON.stringify(classData),
+            }),
+        });
+        setLoadingStatus(false);
+
+        if (res.status == 200) {
+            const token = await res.text();
+            currentClassDataCache = classData;
+            if (token != null) {
+                localStorage.setItem("database_token", token);
+            }
+        } else {
+            const error = await res.text();
+            if (error == "Username or password wrong") {
+                localStorage.removeItem("database_username");
+                localStorage.removeItem("database_password");
+                isLoggedIn = false;
+            }
+            showToast(error);
+        }
+    } else {
+        setLoadingStatus(false);
+    }
 }
 
 function setLoginStatusFront() {
@@ -431,40 +477,6 @@ async function processFetchedClassData(classData) {
     }
 
     await updateClassDataOnDatabase(classData);
-}
-
-async function updateClassDataOnDatabase(classData) {
-    const database_username = localStorage.getItem("database_username");
-    const database_password = localStorage.getItem("database_password");
-    if (database_username && database_password) {
-        setLoadingStatus(true);
-        const res = await fetch("/update-userdata", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email: database_username,
-                password: database_password,
-                data: JSON.stringify(classData),
-            }),
-        });
-        setLoadingStatus(false);
-
-        if (res.ok) {
-            currentClassDataCache = classData;
-        } else {
-            const error = await res.text();
-            if (error == "Username or password wrong") {
-                localStorage.removeItem("database_username");
-                localStorage.removeItem("database_password");
-                isLoggedIn = false;
-            }
-            showToast(error);
-        }
-    } else {
-        setLoadingStatus(false);
-    }
 }
 
 function showTodoChange(event) {

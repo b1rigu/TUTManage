@@ -167,7 +167,7 @@ async function getDataFromDatabase() {
     setLoginStatusFront();
 }
 
-async function updateClassDataOnDatabase(classData) {
+async function updateClassDataOnDatabase(classData, previousClassData) {
     const database_username = localStorage.getItem("database_username");
     const token = localStorage.getItem("database_token");
     if (token) {
@@ -188,6 +188,7 @@ async function updateClassDataOnDatabase(classData) {
         if (res.status == 200) {
             currentClassDataCache = classData;
         } else {
+            currentClassDataCache = previousClassData;
             const error = await res.text();
             if (error == "Token expired or invalid" || error == "No token provided") {
                 logout();
@@ -494,7 +495,7 @@ async function processFetchedClassData(classData) {
         });
     }
 
-    await updateClassDataOnDatabase(classData);
+    await updateClassDataOnDatabase(classData, existingClassData);
 }
 
 function showTodoChange(event) {
@@ -521,6 +522,7 @@ async function todoChange(event, id) {
     const sInput = editModal.querySelector("#edit-modal-s").value;
 
     let todos;
+    const previousClassData = JSON.parse(JSON.stringify(currentClassDataCache));
 
     if (sInput == "false") {
         todos = currentClassDataCache[iInput][yInput].classTodos;
@@ -536,7 +538,15 @@ async function todoChange(event, id) {
         todos[Number(id)].isDone = false;
     }
 
-    await updateClassDataOnDatabase(currentClassDataCache);
+    setDataToTable(currentClassDataCache);
+
+    clearAndSetClassDataToModal({
+        i: iInput,
+        y: yInput,
+        s: sInput,
+    });
+
+    await updateClassDataOnDatabase(currentClassDataCache, previousClassData);
 
     setDataToTable(currentClassDataCache);
 
@@ -554,6 +564,7 @@ async function todoDelete(id) {
         const sInput = editModal.querySelector("#edit-modal-s").value;
 
         let todos;
+        const previousClassData = JSON.parse(JSON.stringify(currentClassDataCache));
 
         if (sInput == "false") {
             todos = currentClassDataCache[iInput][yInput].classTodos;
@@ -563,7 +574,15 @@ async function todoDelete(id) {
 
         todos.splice(Number(id), 1);
 
-        await updateClassDataOnDatabase(currentClassDataCache);
+        setDataToTable(currentClassDataCache);
+
+        clearAndSetClassDataToModal({
+            i: iInput,
+            y: yInput,
+            s: sInput,
+        });
+
+        await updateClassDataOnDatabase(currentClassDataCache, previousClassData);
 
         setDataToTable(currentClassDataCache);
 
@@ -613,6 +632,7 @@ async function addAndSaveTodoFromUserInput() {
     const iInput = editModal.querySelector("#edit-modal-i").value;
     const yInput = editModal.querySelector("#edit-modal-y").value;
     const sInput = editModal.querySelector("#edit-modal-s").value;
+    const previousClassData = JSON.parse(JSON.stringify(currentClassDataCache));
 
     if (sInput == "false") {
         currentClassDataCache[iInput][yInput].classTodos.push({
@@ -627,7 +647,14 @@ async function addAndSaveTodoFromUserInput() {
     }
 
     todoInputBox.value = "";
-    await updateClassDataOnDatabase(currentClassDataCache);
+    setDataToTable(currentClassDataCache);
+    clearAndSetClassDataToModal({
+        i: iInput,
+        y: yInput,
+        s: sInput,
+    });
+
+    await updateClassDataOnDatabase(currentClassDataCache, previousClassData);
 
     setDataToTable(currentClassDataCache);
     clearAndSetClassDataToModal({
@@ -642,6 +669,7 @@ async function saveClassClassroomData() {
     const iInput = editModal.querySelector("#edit-modal-i").value;
     const yInput = editModal.querySelector("#edit-modal-y").value;
     const sInput = editModal.querySelector("#edit-modal-s").value;
+    const previousClassData = JSON.parse(JSON.stringify(currentClassDataCache));
 
     if (sInput == "false") {
         currentClassDataCache[iInput][yInput].classClassroomLink = classroomLinkInput;
@@ -649,7 +677,9 @@ async function saveClassClassroomData() {
         currentClassDataCache[iInput][yInput].secondHalfClassClassroomLink = classroomLinkInput;
     }
 
-    await updateClassDataOnDatabase(currentClassDataCache);
+    setDataToTable(currentClassDataCache);
+
+    await updateClassDataOnDatabase(currentClassDataCache, previousClassData);
 
     setDataToTable(currentClassDataCache);
 }

@@ -37,7 +37,10 @@ app.post("/get-classes", async (req, res) => {
 function sendResetEmail(toEmail, resetLink) {
     const msg = {
         to: toEmail,
-        from: process.env.SENDGRID_FROM_EMAIL,
+        from: {
+            name: "TUTManage",
+            email: process.env.SENDGRID_FROM_EMAIL,
+        },
         templateId: process.env.SENDGRID_TEMPLATE_ID,
         dynamicTemplateData: {
             username: toEmail,

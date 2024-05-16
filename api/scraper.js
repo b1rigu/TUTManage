@@ -8,7 +8,6 @@ if (process.env.CURRENT_ENV == "production") {
 
     await import("@sparticuz/chromium").then((chromiumLocal) => {
         chromium = chromiumLocal;
-        chromium.setHeadlessMode = true;
     });
 } else {
     await import("puppeteer").then((puppeteerLocal) => {
@@ -65,6 +64,7 @@ const checkIfOneTimePassNeeded = async (page, oneTimePass) => {
 export const getClasses = async (username, password, oneTimePass) => {
     let browser;
     if (process.env.CURRENT_ENV == "production") {
+        chromium.setHeadlessMode = true;
         browser = await puppeteer.launch({
             args: chromium.args,
             defaultViewport: chromium.defaultViewport,

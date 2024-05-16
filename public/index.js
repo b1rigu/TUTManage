@@ -13,8 +13,8 @@ let showCompletedTodos = false;
 
 // FUNCTION THAT RUNS ON LOAD
 (async function () {
-    const token = localStorage.getItem("database_token");
-    if (token) isLoggedIn = true;
+    const accessToken = localStorage.getItem("database_accessToken");
+    if (accessToken) isLoggedIn = true;
 
     await getDataFromDatabase();
 
@@ -264,17 +264,12 @@ async function login(e) {
             const loginModal = bootstrap.Modal.getOrCreateInstance("#loginModal");
             loginModal.hide();
 
-            if (resJson.token) {
-                localStorage.setItem("database_username", database_username);
-                localStorage.setItem("database_token", resJson.token);
-                await getDataFromDatabase();
-            }
+            localStorage.setItem("database_username", database_username);
+            localStorage.setItem("database_accessToken", resJson.accessToken);
+            localStorage.setItem("database_refreshToken", resJson.refreshToken);
+            await getDataFromDatabase();
         } else {
             const error = await res.text();
-            if (error == "Invalid email or password") {
-                localStorage.removeItem("database_username");
-                isLoggedIn = false;
-            }
             showToast(error);
         }
     } else {
@@ -285,7 +280,18 @@ async function login(e) {
 }
 
 function logout() {
-    localStorage.removeItem("database_token");
+    const refreshToken = localStorage.getItem("database_refreshToken");
+    fetch("/logout", {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            refreshToken: refreshToken,
+        }),
+    });
+    localStorage.removeItem("database_accessToken");
+    localStorage.removeItem("database_refreshToken");
     localStorage.removeItem("database_username");
     isLoggedIn = false;
     setLoginStatusFront();
@@ -325,20 +331,45 @@ async function signup(e) {
     }
 }
 
-async function getDataFromDatabase() {
-    const database_username = localStorage.getItem("database_username");
-    const token = localStorage.getItem("database_token");
-    if (token) {
+async function refreshAccessToken() {
+    const refreshToken = localStorage.getItem("database_refreshToken");
+    if (refreshToken) {
         setLoadingStatus(true);
-        const res = await fetch("/get-userdata", {
+        const res = await fetch("/refresh-token", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: token,
             },
             body: JSON.stringify({
-                email: database_username,
+                refreshToken: refreshToken,
             }),
+        });
+        setLoadingStatus(false);
+
+        if (res.status == 200) {
+            const resJson = await res.json();
+            localStorage.setItem("database_accessToken", resJson.accessToken);
+        } else {
+            const error = await res.text();
+            showToast(error);
+        }
+    } else {
+        setLoadingStatus(false);
+    }
+}
+
+async function getDataFromDatabase() {
+    const accessToken = localStorage.getItem("database_accessToken");
+    if (accessToken) {
+        setLoadingStatus(true);
+        const res = await fetch("/get-userdata", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: accessToken,
+            },
+        }).catch((err) => {
+            console.log(err);
         });
         setLoadingStatus(false);
 
@@ -352,13 +383,14 @@ async function getDataFromDatabase() {
             }
         } else {
             const error = await res.text();
-            showToast(error);
-            if (
-                error == "Token expired or invalid" ||
-                error == "No token provided" ||
-                error == "User not found"
-            ) {
+            if (res.status == 401 || res.status == 403) {
+                await refreshAccessToken();
+                await getDataFromDatabase();
+            } else if (res.status == 400) {
+                showToast(error);
                 logout();
+            } else {
+                showToast(error);
             }
         }
     } else {
@@ -369,18 +401,16 @@ async function getDataFromDatabase() {
 }
 
 async function updateClassDataOnDatabase(classData, previousClassData) {
-    const database_username = localStorage.getItem("database_username");
-    const token = localStorage.getItem("database_token");
-    if (token) {
+    const accessToken = localStorage.getItem("database_accessToken");
+    if (accessToken) {
         setLoadingStatus(true);
         const res = await fetch("/update-userdata", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: token,
+                Authorization: accessToken,
             },
             body: JSON.stringify({
-                email: database_username,
                 data: JSON.stringify(classData),
             }),
         });
@@ -391,18 +421,20 @@ async function updateClassDataOnDatabase(classData, previousClassData) {
         } else {
             currentClassDataCache = previousClassData;
             const error = await res.text();
-            showToast(error);
 
-            bootstrap.Modal.getOrCreateInstance("#editModal").hide();
-            bootstrap.Modal.getOrCreateInstance("#refreshModal").hide();
-
-            if (
-                error == "Token expired or invalid" ||
-                error == "No token provided" ||
-                error == "User not found"
-            ) {
+            if (res.status == 401 || res.status == 403) {
+                await refreshAccessToken();
+                await updateClassDataOnDatabase(classData, previousClassData);
+            } else if (res.status == 400) {
+                bootstrap.Modal.getOrCreateInstance("#editModal").hide();
+                bootstrap.Modal.getOrCreateInstance("#refreshModal").hide();
+                showToast(error);
                 currentClassDataCache = [];
                 logout();
+            } else {
+                bootstrap.Modal.getOrCreateInstance("#editModal").hide();
+                bootstrap.Modal.getOrCreateInstance("#refreshModal").hide();
+                showToast(error);
             }
         }
     } else {

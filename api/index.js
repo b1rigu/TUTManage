@@ -29,35 +29,8 @@ app.use("/", express.static(path.join(__dirname, "public")));
 app.post("/get-classes", async (req, res) => {
     const body = req.body;
     const allClasses = await getClasses(body.username, body.password, body.onetimepass);
-    res.status(200).json(allClasses);
+    return res.status(200).json(allClasses);
 });
-async function checkAuthentication(req) {
-    const token = req.headers["authorization"];
-    if (token) {
-        const isVerified = jwt.verify(token, secretKey, (err, decoded) => {
-            if (err) {
-                return false;
-            }
-            return true;
-        });
-        if (isVerified) {
-            return {
-                isAuthenticated: true,
-                data: null,
-            };
-        } else {
-            return {
-                isAuthenticated: false,
-                data: "Token expired or invalid",
-            };
-        }
-    }
-
-    return {
-        isAuthenticated: false,
-        data: "No token provided",
-    };
-}
 
 async function verifyPassword(plainPassword, hashedPassword) {
     try {
@@ -79,20 +52,72 @@ async function hashPassword(plainPassword) {
     }
 }
 
+function generateJWTToken(email, expiration) {
+    return jwt.sign({ email: email }, secretKey, {
+        expiresIn: expiration,
+    });
+}
+
+function checkAuthentication(req, res, next) {
+    const token = req.headers["authorization"];
+
+    if (token == null) return res.status(401);
+
+    jwt.verify(token, secretKey, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+}
+
+app.post("/refresh-token", async (req, res) => {
+    try {
+        const refreshToken = req.body.refreshToken;
+        if (refreshToken == null) return res.sendStatus(401);
+        const refreshTokenRef = db.collection("refreshTokens").doc(refreshToken);
+        const refreshTokenJson = await refreshTokenRef.get();
+        if (!refreshTokenJson.exists || !refreshTokenJson.data().isActive) return res.status(403);
+        jwt.verify(refreshToken, secretKey, (err, user) => {
+            if (err) return res.sendStatus(403);
+            const accessToken = generateJWTToken(user.email, "10s");
+            return res.status(200).json({ accessToken });
+        });
+    } catch (error) {
+        res.status(400).send(error);
+    }
+});
+
+app.delete("/logout", async (req, res) => {
+    try {
+        const refreshToken = req.body.refreshToken;
+        if (refreshToken == null) return res.sendStatus(401);
+        const refreshTokenRef = db.collection("refreshTokens").doc(refreshToken);
+        await refreshTokenRef.delete();
+        res.sendStatus(200);
+    } catch (error) {
+        res.status(400).send(error);
+    }
+});
+
 app.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
-
         const userRef = db.collection("userData").doc(email);
         const user = await userRef.get();
-        if (user.exists && (await verifyPassword(password, user.data().password))) {
-            const token = jwt.sign({ email: email }, secretKey, {
-                expiresIn: "1d",
-            });
-            res.status(200).json({ token });
-            return;
+
+        if (!user.exists || !(await verifyPassword(password, user.data().password))) {
+            throw "Invalid email or password";
         }
-        throw "Invalid email or password";
+
+        const accessToken = generateJWTToken(email, "10s");
+        const refreshToken = generateJWTToken(email, "1y");
+        const refreshTokenJson = {
+            refreshToken: refreshToken,
+            email: email,
+            isActive: true,
+        };
+        await db.collection("refreshTokens").doc(refreshToken).set(refreshTokenJson);
+        return res.status(200).json({ accessToken, refreshToken });
     } catch (error) {
         res.status(400).send(error);
     }
@@ -119,8 +144,7 @@ app.post("/create-account", async (req, res) => {
                 data: "",
             };
             const response = await db.collection("userData").doc(email).set(userJson);
-            res.status(200).send(response);
-            return;
+            return res.status(200).send(response);
         }
         throw "User already exists";
     } catch (error) {
@@ -128,48 +152,35 @@ app.post("/create-account", async (req, res) => {
     }
 });
 
-app.post("/update-userdata", async (req, res) => {
+app.post("/update-userdata", checkAuthentication, async (req, res) => {
     try {
-        const { data, email } = req.body;
-        const userRef = db.collection("userData").doc(email);
-        const authenticated = await checkAuthentication(req);
-        if (authenticated.isAuthenticated) {
-            const response = await userRef
-                .update({
-                    data: data,
-                })
-                .catch((error) => {
-                    if (error.code === 5) {
-                        throw "User not found";
-                    } else {
-                        throw error.code;
-                    }
-                });
-            res.status(200).send(response);
-            return;
-        } else {
-            throw authenticated.data;
-        }
+        const { data } = req.body;
+        const userRef = db.collection("userData").doc(req.user.email);
+        const response = await userRef
+            .update({
+                data: data,
+            })
+            .catch((error) => {
+                if (error.code === 5) {
+                    throw "User not found";
+                } else {
+                    throw error.code;
+                }
+            });
+        return res.status(200).send(response);
     } catch (error) {
-        res.status(403).send(error);
+        return res.status(400).send(error);
     }
 });
 
-app.post("/get-userdata", async (req, res) => {
+app.get("/get-userdata", checkAuthentication, async (req, res) => {
     try {
-        const { email } = req.body;
-        const authenticated = await checkAuthentication(req);
-        if (authenticated.isAuthenticated) {
-            const userRef = db.collection("userData").doc(email);
-            const user = await userRef.get();
-            if (!user.exists) throw "User not found";
-            res.status(200).json({ data: user.data().data });
-            return;
-        } else {
-            throw authenticated.data;
-        }
+        const userRef = db.collection("userData").doc(req.user.email);
+        const user = await userRef.get();
+        if (!user.exists) throw "User not found";
+        return res.status(200).json({ data: user.data().data });
     } catch (error) {
-        res.status(403).send(error);
+        return res.status(400).send(error);
     }
 });
 

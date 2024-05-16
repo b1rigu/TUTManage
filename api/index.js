@@ -5,13 +5,12 @@ import admin from "firebase-admin";
 import argon2 from "argon2";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import crypto from "crypto";
 
 dotenv.config();
 const app = express();
 const __dirname = path.resolve();
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-const secretKey = generateJwtSecretKey();
+const secretKey = process.env.JWT_SECRET_KEY;
 const emailPattern =
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
@@ -32,11 +31,6 @@ app.post("/get-classes", async (req, res) => {
     const allClasses = await getClasses(body.username, body.password, body.onetimepass);
     res.status(200).json(allClasses);
 });
-
-function generateJwtSecretKey(length = 64) {
-    return crypto.randomBytes(length).toString("hex");
-}
-
 async function checkAuthentication(req) {
     const token = req.headers["authorization"];
     if (token) {

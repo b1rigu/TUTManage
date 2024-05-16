@@ -1,3 +1,4 @@
+// VARIABLES
 const periods = [
     "08:50 - 10:20",
     "10:30 - 12:00",
@@ -9,6 +10,21 @@ const periods = [
 let isLoggedIn = false;
 let currentClassDataCache = [];
 let showCompletedTodos = false;
+
+// FUNCTION THAT RUNS ON LOAD
+(async function () {
+    const token = localStorage.getItem("database_token");
+    if (token) isLoggedIn = true;
+
+    await getDataFromDatabase();
+
+    const kyomuUsername = localStorage.getItem("kyomuUsername");
+    const kyomuPassword = localStorage.getItem("kyomuPassword");
+    if (kyomuUsername && kyomuPassword) {
+        document.getElementById("kyomuUsername").value = kyomuUsername;
+        document.getElementById("kyomuPassword").value = kyomuPassword;
+    }
+})();
 
 // UTIL FUNCTIONS
 function createCell(text) {
@@ -28,21 +44,200 @@ function showToast(text) {
     toastBootstrap.show();
 }
 
-// MAIN FUNCTIONS
-(async function () {
-    const token = localStorage.getItem("database_token");
-    if (token) isLoggedIn = true;
-
-    await getDataFromDatabase();
-
-    const kyomuUsername = localStorage.getItem("kyomuUsername");
-    const kyomuPassword = localStorage.getItem("kyomuPassword");
-    if (kyomuUsername && kyomuPassword) {
-        document.getElementById("kyomuUsername").value = kyomuUsername;
-        document.getElementById("kyomuPassword").value = kyomuPassword;
+function setLoginStatusFront() {
+    if (isLoggedIn) {
+        document.getElementById("login-status").innerHTML = "Logged in as: ";
+        document.getElementById("loggedin-username").innerHTML =
+            localStorage.getItem("database_username");
+        document.getElementById("login-btn-div").innerHTML = `
+            <button type="button" class="btn btn-link p-0" onclick="logout()">Logout</button>
+        `;
+        document.getElementById("update-class-data-div").style.display = "block";
+    } else {
+        document.getElementById("login-status").innerHTML = "Logged out ";
+        document.getElementById("loggedin-username").innerHTML = "";
+        document.getElementById("login-btn-div").innerHTML = `
+            <button
+                type="button"
+                class="btn btn-link p-0"
+                data-bs-toggle="modal"
+                data-bs-target="#loginModal"
+            >Login</button>
+        `;
+        document.getElementById("cirriculum-table").querySelector("tbody").innerHTML = "";
+        document.getElementById("total-credits").innerHTML = "0";
+        document.getElementById("update-class-data-div").style.display = "none";
     }
-})();
+}
 
+function setLoadingStatus(isLoading) {
+    if (isLoading) {
+        document.querySelectorAll(".non-loading").forEach((el) => {
+            el.style.display = "none";
+        });
+        document.querySelectorAll(".loading").forEach((el) => {
+            el.style.display = "inline-block";
+        });
+    } else {
+        document.querySelectorAll(".non-loading").forEach((el) => {
+            el.style.display = "block";
+        });
+        document.querySelectorAll(".loading").forEach((el) => {
+            el.style.display = "none";
+        });
+    }
+}
+
+function setDataToTable(data) {
+    let totalCredits = 0;
+    const table = document.getElementById("cirriculum-table").querySelector("tbody");
+    table.innerHTML = "";
+
+    data.forEach((period, i) => {
+        const row = createRow();
+        row.append(createCell(periods[i]));
+        period.forEach((singleClass, y) => {
+            const classroomLink1 =
+                singleClass.classClassroomLink != ""
+                    ? `<a href="${singleClass.classClassroomLink}" target="_blank">Classroom</a>`
+                    : "";
+            const classroomLink2 =
+                singleClass.secondHalfClassClassroomLink != ""
+                    ? `<a href="${singleClass.secondHalfClassClassroomLink}" target="_blank">Classroom</a>`
+                    : "";
+            const cellText =
+                singleClass.classId.length > 0 == ""
+                    ? `<div class="row-box-lighter"><span class="text-body-secondary">First half of semester not selected</span></div>`
+                    : `<div class="row-box">
+                            <a href="${singleClass.classLink}" target="_blank">
+                                <h5>${singleClass.className}</h5>
+                            </a>
+                            <p class="m-0">Credit: ${singleClass.classCredit}</p>
+                            <p class="m-0">Todos: ${
+                                singleClass.classTodos.filter((task) => !task.isDone).length
+                            }</p>
+                            ${classroomLink1}
+                            <button type="button" class="btn btn-secondary w-100" data-bs-toggle="modal" data-bs-target="#editModal" data-bs-i="${i}" data-bs-y="${y}" data-bs-s="false">Extras</button>
+                    </div>`;
+            const cellText2 =
+                singleClass.secondHalfClassId.length > 0 == ""
+                    ? `<div class="row-box-lighter"><span class="text-body-secondary">Second half of semester not selected</span></div>`
+                    : `<div class="row-box">
+                            <a href="${singleClass.secondHalfClassLink}" target="_blank">
+                                <h5>${singleClass.secondHalfClassName}</h5>
+                            </a>
+                            <p class="m-0">Credit: ${singleClass.secondHalfClassCredit}</p>
+                            <p class="m-0">Todos: ${
+                                singleClass.secondHalfClassTodos.filter((task) => !task.isDone)
+                                    .length
+                            }</p>
+                            ${classroomLink2}
+                            <button type="button" class="btn btn-secondary w-100" data-bs-toggle="modal" data-bs-target="#editModal" data-bs-i="${i}" data-bs-y="${y}" data-bs-s="true">Extras</button>
+                    </div>`;
+            row.append(createCell(cellText + cellText2));
+            totalCredits +=
+                Number(singleClass.classCredit) + Number(singleClass.secondHalfClassCredit);
+        });
+        table.appendChild(row);
+    });
+
+    document.getElementById("total-credits").innerHTML = totalCredits;
+}
+
+function clearAndSetClassDataToModal({ i, y, s }) {
+    let className = "";
+    let classroomLink = "";
+    let todos = [];
+
+    if (s == "false") {
+        className = currentClassDataCache[i][y].className;
+        classroomLink = currentClassDataCache[i][y].classClassroomLink;
+        todos = currentClassDataCache[i][y].classTodos.map((todo, index) => {
+            return { ...todo, origIndex: index };
+        });
+    } else {
+        className = currentClassDataCache[i][y].secondHalfClassName;
+        classroomLink = currentClassDataCache[i][y].secondHalfClassClassroomLink;
+        todos = currentClassDataCache[i][y].secondHalfClassTodos.map((todo, index) => {
+            return { ...todo, origIndex: index };
+        });
+    }
+
+    todos = todos.sort(function (x, y) {
+        return x.isDone === y.isDone ? 0 : x.isDone ? -1 : 1;
+    });
+
+    const modalTitle = editModal.querySelector("#edit-modal-title");
+    const classroomLinkInput = editModal.querySelector("#classroom-link");
+    const iInput = editModal.querySelector("#edit-modal-i");
+    const yInput = editModal.querySelector("#edit-modal-y");
+    const sInput = editModal.querySelector("#edit-modal-s");
+
+    modalTitle.textContent = className;
+    classroomLinkInput.value = classroomLink;
+    const addTodoList = editModal.querySelector("#add-todo-list");
+    addTodoList.innerHTML = "";
+    for (let i = 0; i < todos.length; i++) {
+        setTodoDataToFront(todos[i].origIndex, todos[i].text, todos[i].isDone);
+    }
+    iInput.value = i;
+    yInput.value = y;
+    sInput.value = s;
+}
+
+function setTodoDataToFront(id, text, isDone = false) {
+    if (!showCompletedTodos && isDone) return;
+    let classToAdd = "";
+    if (isDone) {
+        classToAdd = "text-decoration-line-through";
+    }
+
+    const addTodoList = editModal.querySelector("#add-todo-list");
+    const addTodoHtml = `
+        <li class="list-group-item list-group-item-dark">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3 w-100 overflow-auto">
+                    <input
+                        type="checkbox"
+                        id="todo-${id}"
+                        onchange="todoChange(event, '${id}')"
+                        ${isDone ? "checked" : ""}
+                    />
+                    <p class="m-0 overflow-auto ${classToAdd}" id="todo-label-${id}">
+                            ${text}
+                    </p>
+                </div>
+                <button type="button" class="btn-close" aria-label="Close" onclick="todoDelete('${id}')"></button>
+            </div>
+        </li>
+    `;
+
+    addTodoList.innerHTML = addTodoHtml + addTodoList.innerHTML;
+}
+
+function verifyData(data) {
+    const classDataFlattened = data.flat();
+    return !classDataFlattened.every((myClass) => myClass.classId == "");
+}
+
+function showTodoChange(event) {
+    if (event.target.checked) {
+        showCompletedTodos = true;
+    } else {
+        showCompletedTodos = false;
+    }
+
+    const iInput = editModal.querySelector("#edit-modal-i").value;
+    const yInput = editModal.querySelector("#edit-modal-y").value;
+    const sInput = editModal.querySelector("#edit-modal-s").value;
+    clearAndSetClassDataToModal({
+        i: iInput,
+        y: yInput,
+        s: sInput,
+    });
+}
+
+// MAIN FUNCTIONS
 async function login(e) {
     if (e) e.preventDefault();
     const database_username = document.getElementById("database_username").value;
@@ -215,106 +410,6 @@ async function updateClassDataOnDatabase(classData, previousClassData) {
     }
 }
 
-function setLoginStatusFront() {
-    if (isLoggedIn) {
-        document.getElementById("login-status").innerHTML = "Logged in as: ";
-        document.getElementById("loggedin-username").innerHTML =
-            localStorage.getItem("database_username");
-        document.getElementById("login-btn-div").innerHTML = `
-            <button type="button" class="btn btn-link p-0" onclick="logout()">Logout</button>
-        `;
-        document.getElementById("update-class-data-div").style.display = "block";
-    } else {
-        document.getElementById("login-status").innerHTML = "Logged out ";
-        document.getElementById("loggedin-username").innerHTML = "";
-        document.getElementById("login-btn-div").innerHTML = `
-            <button
-                type="button"
-                class="btn btn-link p-0"
-                data-bs-toggle="modal"
-                data-bs-target="#loginModal"
-            >Login</button>
-        `;
-        document.getElementById("cirriculum-table").querySelector("tbody").innerHTML = "";
-        document.getElementById("total-credits").innerHTML = "0";
-        document.getElementById("update-class-data-div").style.display = "none";
-    }
-}
-
-function setLoadingStatus(isLoading) {
-    if (isLoading) {
-        document.querySelectorAll(".non-loading").forEach((el) => {
-            el.style.display = "none";
-        });
-        document.querySelectorAll(".loading").forEach((el) => {
-            el.style.display = "inline-block";
-        });
-    } else {
-        document.querySelectorAll(".non-loading").forEach((el) => {
-            el.style.display = "block";
-        });
-        document.querySelectorAll(".loading").forEach((el) => {
-            el.style.display = "none";
-        });
-    }
-}
-
-function setDataToTable(data) {
-    let totalCredits = 0;
-    const table = document.getElementById("cirriculum-table").querySelector("tbody");
-    table.innerHTML = "";
-
-    data.forEach((period, i) => {
-        const row = createRow();
-        row.append(createCell(periods[i]));
-        period.forEach((singleClass, y) => {
-            const classroomLink1 =
-                singleClass.classClassroomLink != ""
-                    ? `<a href="${singleClass.classClassroomLink}" target="_blank">Classroom</a>`
-                    : "";
-            const classroomLink2 =
-                singleClass.secondHalfClassClassroomLink != ""
-                    ? `<a href="${singleClass.secondHalfClassClassroomLink}" target="_blank">Classroom</a>`
-                    : "";
-            const cellText =
-                singleClass.classId.length > 0 == ""
-                    ? `<div class="row-box-lighter"><span class="text-body-secondary">First half of semester not selected</span></div>`
-                    : `<div class="row-box">
-                            <a href="${singleClass.classLink}" target="_blank">
-                                <h5>${singleClass.className}</h5>
-                            </a>
-                            <p class="m-0">Credit: ${singleClass.classCredit}</p>
-                            <p class="m-0">Todos: ${
-                                singleClass.classTodos.filter((task) => !task.isDone).length
-                            }</p>
-                            ${classroomLink1}
-                            <button type="button" class="btn btn-secondary w-100" data-bs-toggle="modal" data-bs-target="#editModal" data-bs-i="${i}" data-bs-y="${y}" data-bs-s="false">Extras</button>
-                    </div>`;
-            const cellText2 =
-                singleClass.secondHalfClassId.length > 0 == ""
-                    ? `<div class="row-box-lighter"><span class="text-body-secondary">Second half of semester not selected</span></div>`
-                    : `<div class="row-box">
-                            <a href="${singleClass.secondHalfClassLink}" target="_blank">
-                                <h5>${singleClass.secondHalfClassName}</h5>
-                            </a>
-                            <p class="m-0">Credit: ${singleClass.secondHalfClassCredit}</p>
-                            <p class="m-0">Todos: ${
-                                singleClass.secondHalfClassTodos.filter((task) => !task.isDone)
-                                    .length
-                            }</p>
-                            ${classroomLink2}
-                            <button type="button" class="btn btn-secondary w-100" data-bs-toggle="modal" data-bs-target="#editModal" data-bs-i="${i}" data-bs-y="${y}" data-bs-s="true">Extras</button>
-                    </div>`;
-            row.append(createCell(cellText + cellText2));
-            totalCredits +=
-                Number(singleClass.classCredit) + Number(singleClass.secondHalfClassCredit);
-        });
-        table.appendChild(row);
-    });
-
-    document.getElementById("total-credits").innerHTML = totalCredits;
-}
-
 async function getClassesManual(e) {
     e.preventDefault();
     const rawhtml = document.getElementById("rawhtml").value;
@@ -471,11 +566,6 @@ async function getClassesAuto(e) {
     }
 }
 
-function verifyData(data) {
-    const classDataFlattened = data.flat();
-    return !classDataFlattened.every((myClass) => myClass.classId == "");
-}
-
 async function processFetchedClassData(classData) {
     const existingClassData = currentClassDataCache;
 
@@ -510,23 +600,6 @@ async function processFetchedClassData(classData) {
     }
 
     await updateClassDataOnDatabase(classData, existingClassData);
-}
-
-function showTodoChange(event) {
-    if (event.target.checked) {
-        showCompletedTodos = true;
-    } else {
-        showCompletedTodos = false;
-    }
-
-    const iInput = editModal.querySelector("#edit-modal-i").value;
-    const yInput = editModal.querySelector("#edit-modal-y").value;
-    const sInput = editModal.querySelector("#edit-modal-s").value;
-    clearAndSetClassDataToModal({
-        i: iInput,
-        y: yInput,
-        s: sInput,
-    });
 }
 
 async function todoChange(event, id) {
@@ -608,36 +681,6 @@ async function todoDelete(id) {
     }
 }
 
-function addTodo(id, text, isDone = false) {
-    if (!showCompletedTodos && isDone) return;
-    let classToAdd = "";
-    if (isDone) {
-        classToAdd = "text-decoration-line-through";
-    }
-
-    const addTodoList = editModal.querySelector("#add-todo-list");
-    const addTodoHtml = `
-        <li class="list-group-item list-group-item-dark">
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-3 w-100 overflow-auto">
-                    <input
-                        type="checkbox"
-                        id="todo-${id}"
-                        onchange="todoChange(event, '${id}')"
-                        ${isDone ? "checked" : ""}
-                    />
-                    <p class="m-0 overflow-auto ${classToAdd}" id="todo-label-${id}">
-                            ${text}
-                    </p>
-                </div>
-                <button type="button" class="btn-close" aria-label="Close" onclick="todoDelete('${id}')"></button>
-            </div>
-        </li>
-    `;
-
-    addTodoList.innerHTML = addTodoHtml + addTodoList.innerHTML;
-}
-
 async function addAndSaveTodoFromUserInput() {
     const todoInputBox = editModal.querySelector("#add-todo-box");
 
@@ -696,47 +739,6 @@ async function saveClassClassroomData() {
     await updateClassDataOnDatabase(currentClassDataCache, previousClassData);
 
     setDataToTable(currentClassDataCache);
-}
-
-function clearAndSetClassDataToModal({ i, y, s }) {
-    let className = "";
-    let classroomLink = "";
-    let todos = [];
-
-    if (s == "false") {
-        className = currentClassDataCache[i][y].className;
-        classroomLink = currentClassDataCache[i][y].classClassroomLink;
-        todos = currentClassDataCache[i][y].classTodos.map((todo, index) => {
-            return { ...todo, origIndex: index };
-        });
-    } else {
-        className = currentClassDataCache[i][y].secondHalfClassName;
-        classroomLink = currentClassDataCache[i][y].secondHalfClassClassroomLink;
-        todos = currentClassDataCache[i][y].secondHalfClassTodos.map((todo, index) => {
-            return { ...todo, origIndex: index };
-        });
-    }
-
-    todos = todos.sort(function (x, y) {
-        return x.isDone === y.isDone ? 0 : x.isDone ? -1 : 1;
-    });
-
-    const modalTitle = editModal.querySelector("#edit-modal-title");
-    const classroomLinkInput = editModal.querySelector("#classroom-link");
-    const iInput = editModal.querySelector("#edit-modal-i");
-    const yInput = editModal.querySelector("#edit-modal-y");
-    const sInput = editModal.querySelector("#edit-modal-s");
-
-    modalTitle.textContent = className;
-    classroomLinkInput.value = classroomLink;
-    const addTodoList = editModal.querySelector("#add-todo-list");
-    addTodoList.innerHTML = "";
-    for (let i = 0; i < todos.length; i++) {
-        addTodo(todos[i].origIndex, todos[i].text, todos[i].isDone);
-    }
-    iInput.value = i;
-    yInput.value = y;
-    sInput.value = s;
 }
 
 const editModal = document.getElementById("editModal");

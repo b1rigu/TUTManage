@@ -34,22 +34,6 @@ app.post("/get-classes", async (req, res) => {
     return res.status(200).json(allClasses);
 });
 
-async function sendResetEmail(toEmail, resetLink) {
-    const msg = {
-        to: toEmail,
-        from: {
-            name: "TUTManage",
-            email: process.env.SENDGRID_FROM_EMAIL,
-        },
-        templateId: process.env.SENDGRID_TEMPLATE_ID,
-        dynamicTemplateData: {
-            username: toEmail,
-            resetLink: resetLink,
-        },
-    };
-    await sgMail.send(msg);
-}
-
 async function verifyPassword(plainPassword, hashedPassword) {
     try {
         const match = await argon2.verify(hashedPassword, plainPassword);
@@ -155,7 +139,21 @@ app.post("/send-reset-password", async (req, res) => {
             };
             await db.collection("resetTokens").doc(resetToken).set(resetTokenJson);
             const resetLink = `${process.env.WEBHOST_ADDRESS}/verify-reset-password/${resetToken}`;
-            await sendResetEmail(email, resetLink);
+            const msg = {
+                to: email,
+                from: {
+                    name: "TUTManage",
+                    email: process.env.SENDGRID_FROM_EMAIL,
+                },
+                templateId: process.env.SENDGRID_TEMPLATE_ID,
+                dynamicTemplateData: {
+                    username: email,
+                    resetLink: resetLink,
+                },
+            };
+            await sgMail.send(msg).catch((error) => {
+                throw error;
+            });
         }
 
         return res.sendStatus(200);

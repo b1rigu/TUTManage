@@ -34,7 +34,7 @@ app.post("/get-classes", async (req, res) => {
     return res.status(200).json(allClasses);
 });
 
-function sendResetEmail(toEmail, resetLink) {
+async function sendResetEmail(toEmail, resetLink) {
     const msg = {
         to: toEmail,
         from: {
@@ -47,7 +47,7 @@ function sendResetEmail(toEmail, resetLink) {
             resetLink: resetLink,
         },
     };
-    sgMail.send(msg);
+    await sgMail.send(msg);
 }
 
 async function verifyPassword(plainPassword, hashedPassword) {
@@ -155,7 +155,7 @@ app.post("/send-reset-password", async (req, res) => {
             };
             await db.collection("resetTokens").doc(resetToken).set(resetTokenJson);
             const resetLink = `${process.env.WEBHOST_ADDRESS}/verify-reset-password/${resetToken}`;
-            sendResetEmail(email, resetLink);
+            await sendResetEmail(email, resetLink);
         }
 
         return res.sendStatus(200);

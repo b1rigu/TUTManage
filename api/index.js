@@ -140,9 +140,17 @@ app.post("/update-userdata", async (req, res) => {
         const userRef = db.collection("userData").doc(email);
         const authenticated = await checkAuthentication(req);
         if (authenticated.isAuthenticated) {
-            const response = await userRef.update({
-                data: data,
-            });
+            const response = await userRef
+                .update({
+                    data: data,
+                })
+                .catch((error) => {
+                    if (error.code === 5) {
+                        throw "User not found";
+                    } else {
+                        throw error.code;
+                    }
+                });
             res.status(200).send(response);
             return;
         } else {
@@ -160,6 +168,7 @@ app.post("/get-userdata", async (req, res) => {
         if (authenticated.isAuthenticated) {
             const userRef = db.collection("userData").doc(email);
             const user = await userRef.get();
+            if (!user.exists) throw "User not found";
             res.status(200).json({ data: user.data().data });
             return;
         } else {

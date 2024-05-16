@@ -7,7 +7,7 @@ const periods = [
     "18:00 - 19:30",
 ];
 let isLoggedIn = false;
-let currentClassDataCache;
+let currentClassDataCache = [];
 let showCompletedTodos = false;
 
 // UTIL FUNCTIONS
@@ -44,7 +44,7 @@ function showToast(text) {
 })();
 
 async function login(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
     const database_username = document.getElementById("database_username").value;
     const database_password = document.getElementById("database_password").value;
     document.getElementById("database_password").value = "";
@@ -120,7 +120,7 @@ async function signup(e) {
             localStorage.setItem("database_username", database_username_signup);
             document.getElementById("database_username").value = database_username_signup;
             document.getElementById("database_password").value = database_password_signup;
-            await login();
+            await login(null);
         } else {
             const error = await res.text();
             showToast(error);
@@ -157,10 +157,14 @@ async function getDataFromDatabase() {
             }
         } else {
             const error = await res.text();
-            if (error == "Token expired or invalid" || error == "No token provided") {
+            showToast(error);
+            if (
+                error == "Token expired or invalid" ||
+                error == "No token provided" ||
+                error == "User not found"
+            ) {
                 logout();
             }
-            showToast(error);
         }
     } else {
         setLoadingStatus(false);
@@ -192,10 +196,19 @@ async function updateClassDataOnDatabase(classData, previousClassData) {
         } else {
             currentClassDataCache = previousClassData;
             const error = await res.text();
-            if (error == "Token expired or invalid" || error == "No token provided") {
+            showToast(error);
+
+            bootstrap.Modal.getOrCreateInstance("#editModal").hide();
+            bootstrap.Modal.getOrCreateInstance("#refreshModal").hide();
+
+            if (
+                error == "Token expired or invalid" ||
+                error == "No token provided" ||
+                error == "User not found"
+            ) {
+                currentClassDataCache = [];
                 logout();
             }
-            showToast(error);
         }
     } else {
         setLoadingStatus(false);
@@ -222,8 +235,7 @@ function setLoginStatusFront() {
                 data-bs-target="#loginModal"
             >Login</button>
         `;
-        const table = document.getElementById("cirriculum-table").querySelector("tbody");
-        table.innerHTML = "";
+        document.getElementById("cirriculum-table").querySelector("tbody").innerHTML = "";
         document.getElementById("total-credits").innerHTML = "0";
         document.getElementById("update-class-data-div").style.display = "none";
     }

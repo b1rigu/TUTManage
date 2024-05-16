@@ -1,1 +1,12 @@
-{ "version": 2, "rewrites": [{ "source": "/(.*)", "destination": "/api" }] }
+{
+    "version": 2,
+    "rewrites": [{ "source": "/(.*)", "destination": "/api" }],
+    "functions": {
+        "api/index.js": {
+            "maxDuration": 60
+        },
+        "api/scraper.js": {
+            "maxDuration": 60
+        }
+    }
+}

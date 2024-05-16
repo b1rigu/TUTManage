@@ -27,8 +27,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/", express.static(path.join(__dirname, "public")));
 
 app.post("/get-classes", async (req, res) => {
-    const body = req.body;
-    const allClasses = await getClasses(body.username, body.password, body.onetimepass);
+    const { username, password, onetimepass } = req.body;
+    const allClasses = await getClasses(username, password, onetimepass);
     return res.status(200).json(allClasses);
 });
 

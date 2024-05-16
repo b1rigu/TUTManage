@@ -1,8 +1,24 @@
-import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
+let puppeteer;
+let chromium;
+
+if (process.env.CURRENT_ENV == "production") {
+    await import("puppeteer-core").then((puppeteerCore) => {
+        puppeteer = puppeteerCore;
+    });
+
+    await import("@sparticuz/chromium").then((chromiumLocal) => {
+        chromium = chromiumLocal;
+        chromium.setHeadlessMode = true;
+    });
+} else {
+    await import("puppeteer").then((puppeteerLocal) => {
+        puppeteer = puppeteerLocal;
+    });
+}
+
 const mainPageUrl = "https://kyomu.office.tut.ac.jp/portal/StudentApp/Top.aspx";
 
-chromium.setHeadlessMode = true;
+// process.env.CURRENT_ENV != "production"
 
 const loginWithUserPass = async (page, username, password) => {
     const loginBtnSelector = "button[type='submit']";
@@ -47,12 +63,18 @@ const checkIfOneTimePassNeeded = async (page, oneTimePass) => {
 };
 
 export const getClasses = async (username, password, oneTimePass) => {
-    const browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
-    });
+    let browser;
+    if (process.env.CURRENT_ENV == "production") {
+        browser = await puppeteer.launch({
+            args: chromium.args,
+            defaultViewport: chromium.defaultViewport,
+            executablePath: await chromium.executablePath(),
+            headless: chromium.headless,
+        });
+    } else {
+        browser = await puppeteer.launch();
+    }
+
     const page = await browser.newPage();
     await page.goto(mainPageUrl);
 

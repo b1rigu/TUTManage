@@ -30,7 +30,10 @@ function showToast(text) {
 
 // MAIN FUNCTIONS
 (async function () {
-    await getLoginStatusAndData();
+    const token = localStorage.getItem("database_token");
+    if (token) isLoggedIn = true;
+
+    await getDataFromDatabase();
 
     const kyomuUsername = localStorage.getItem("kyomuUsername");
     const kyomuPassword = localStorage.getItem("kyomuPassword");
@@ -42,19 +45,53 @@ function showToast(text) {
 
 async function login(e) {
     e.preventDefault();
-    localStorage.removeItem("database_token");
     const database_username = document.getElementById("database_username").value;
     const database_password = document.getElementById("database_password").value;
-    localStorage.setItem("database_username", database_username);
-    localStorage.setItem("database_password", database_password);
     document.getElementById("database_password").value = "";
-    await getLoginStatusAndData();
+    if (database_username && database_password) {
+        setLoadingStatus(true);
+        const res = await fetch("/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                email: database_username,
+                password: database_password,
+            }),
+        });
+        setLoadingStatus(false);
+
+        if (res.status == 200) {
+            const resJson = await res.json();
+            isLoggedIn = true;
+
+            const loginModal = bootstrap.Modal.getOrCreateInstance("#loginModal");
+            loginModal.hide();
+
+            if (resJson.token) {
+                localStorage.setItem("database_username", database_username);
+                localStorage.setItem("database_token", resJson.token);
+                await getDataFromDatabase();
+            }
+        } else {
+            const error = await res.text();
+            if (error == "Invalid email or password") {
+                localStorage.removeItem("database_username");
+                isLoggedIn = false;
+            }
+            showToast(error);
+        }
+    } else {
+        setLoadingStatus(false);
+    }
+
+    setLoginStatusFront();
 }
 
-async function logout() {
+function logout() {
     localStorage.removeItem("database_token");
     localStorage.removeItem("database_username");
-    localStorage.removeItem("database_password");
     isLoggedIn = false;
     setLoginStatusFront();
 }
@@ -81,8 +118,7 @@ async function signup(e) {
 
         if (res.status == 200) {
             localStorage.setItem("database_username", database_username_signup);
-            localStorage.setItem("database_password", database_password_signup);
-            await getLoginStatusAndData();
+            await getDataFromDatabase();
         } else {
             const error = await res.text();
             showToast(error);
@@ -92,11 +128,10 @@ async function signup(e) {
     }
 }
 
-async function getLoginStatusAndData() {
+async function getDataFromDatabase() {
     const database_username = localStorage.getItem("database_username");
-    const database_password = localStorage.getItem("database_password");
     const token = localStorage.getItem("database_token");
-    if (database_username && database_password) {
+    if (token) {
         setLoadingStatus(true);
         const res = await fetch("/get-userdata", {
             method: "POST",
@@ -106,21 +141,12 @@ async function getLoginStatusAndData() {
             },
             body: JSON.stringify({
                 email: database_username,
-                password: database_password,
             }),
         });
         setLoadingStatus(false);
 
         if (res.status == 200) {
             const resJson = await res.json();
-            isLoggedIn = true;
-
-            const loginModal = bootstrap.Modal.getOrCreateInstance("#loginModal");
-            loginModal.hide();
-
-            if (resJson.token != null) {
-                localStorage.setItem("database_token", resJson.token);
-            }
 
             if (resJson.data != "") {
                 const classData = JSON.parse(resJson.data);
@@ -129,11 +155,8 @@ async function getLoginStatusAndData() {
             }
         } else {
             const error = await res.text();
-            if (error == "Invalid email or password") {
-                localStorage.removeItem("database_token");
-                localStorage.removeItem("database_username");
-                localStorage.removeItem("database_password");
-                isLoggedIn = false;
+            if (error == "Token expired or invalid" || error == "No token provided") {
+                logout();
             }
             showToast(error);
         }
@@ -146,9 +169,8 @@ async function getLoginStatusAndData() {
 
 async function updateClassDataOnDatabase(classData) {
     const database_username = localStorage.getItem("database_username");
-    const database_password = localStorage.getItem("database_password");
     const token = localStorage.getItem("database_token");
-    if (database_username && database_password) {
+    if (token) {
         setLoadingStatus(true);
         const res = await fetch("/update-userdata", {
             method: "POST",
@@ -158,25 +180,17 @@ async function updateClassDataOnDatabase(classData) {
             },
             body: JSON.stringify({
                 email: database_username,
-                password: database_password,
                 data: JSON.stringify(classData),
             }),
         });
         setLoadingStatus(false);
 
         if (res.status == 200) {
-            const token = await res.text();
-            if (token != null && token != "") {
-                localStorage.setItem("database_token", token);
-            }
             currentClassDataCache = classData;
         } else {
             const error = await res.text();
-            if (error == "Invalid email or password") {
-                localStorage.removeItem("database_token");
-                localStorage.removeItem("database_username");
-                localStorage.removeItem("database_password");
-                isLoggedIn = false;
+            if (error == "Token expired or invalid" || error == "No token provided") {
+                logout();
             }
             showToast(error);
         }

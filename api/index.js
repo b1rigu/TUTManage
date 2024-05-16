@@ -37,41 +37,31 @@ function generateJwtSecretKey(length = 64) {
     return crypto.randomBytes(length).toString("hex");
 }
 
-async function checkAuthentication(req, userRef, user, email, password) {
+async function checkAuthentication(req) {
     const token = req.headers["authorization"];
     if (token) {
-        const verificationResult = jwt.verify(token, secretKey, (err, decoded) => {
+        const isVerified = jwt.verify(token, secretKey, (err, decoded) => {
             if (err) {
-                return null;
+                return false;
             }
-            return decoded;
+            return true;
         });
-        if (verificationResult && (await verifyPassword(password, verificationResult.password))) {
+        if (isVerified) {
             return {
                 isAuthenticated: true,
                 data: null,
             };
+        } else {
+            return {
+                isAuthenticated: false,
+                data: "Token expired or invalid",
+            };
         }
-    }
-
-    const userLocal = user ? user : await userRef.get();
-    if (userLocal.exists && (await verifyPassword(password, userLocal.data().password))) {
-        const token = jwt.sign(
-            { email: email, password: await hashPassword(password) },
-            secretKey,
-            {
-                expiresIn: "1h",
-            }
-        );
-        return {
-            isAuthenticated: true,
-            data: token,
-        };
     }
 
     return {
         isAuthenticated: false,
-        data: "Invalid email or password",
+        data: "No token provided",
     };
 }
 
@@ -94,6 +84,25 @@ async function hashPassword(plainPassword) {
         return null;
     }
 }
+
+app.post("/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        const userRef = db.collection("userData").doc(email);
+        const user = await userRef.get();
+        if (user.exists && (await verifyPassword(password, user.data().password))) {
+            const token = jwt.sign({ email: email }, secretKey, {
+                expiresIn: "1d",
+            });
+            res.status(200).json({ token });
+            return;
+        }
+        throw "Invalid email or password";
+    } catch (error) {
+        res.status(400).send(error);
+    }
+});
 
 app.post("/create-account", async (req, res) => {
     try {
@@ -127,20 +136,14 @@ app.post("/create-account", async (req, res) => {
 
 app.post("/update-userdata", async (req, res) => {
     try {
-        const { email, password } = req.body;
-        const data = req.body.data;
+        const { data, email } = req.body;
         const userRef = db.collection("userData").doc(email);
-        const authenticated = await checkAuthentication(req, userRef, null, email, password);
+        const authenticated = await checkAuthentication(req);
         if (authenticated.isAuthenticated) {
             const response = await userRef.update({
                 data: data,
             });
-            const token = authenticated.data;
-            if (token) {
-                res.status(200).send(token);
-            } else {
-                res.status(200).send("");
-            }
+            res.status(200).send(response);
             return;
         } else {
             throw authenticated.data;
@@ -152,23 +155,12 @@ app.post("/update-userdata", async (req, res) => {
 
 app.post("/get-userdata", async (req, res) => {
     try {
-        const { email, password } = req.body;
-        const userRef = db.collection("userData").doc(email);
-        const user = await userRef.get();
-        const authenticated = await checkAuthentication(req, userRef, user, email, password);
+        const { email } = req.body;
+        const authenticated = await checkAuthentication(req);
         if (authenticated.isAuthenticated) {
-            const token = authenticated.data;
-            if (token) {
-                res.status(200).json({
-                    token: token,
-                    data: user.data().data,
-                });
-            } else {
-                res.status(200).json({
-                    token: null,
-                    data: user.data().data,
-                });
-            }
+            const userRef = db.collection("userData").doc(email);
+            const user = await userRef.get();
+            res.status(200).json({ data: user.data().data });
             return;
         } else {
             throw authenticated.data;

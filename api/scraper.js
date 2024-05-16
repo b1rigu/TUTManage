@@ -95,7 +95,7 @@ export const getClasses = async (username, password, oneTimePass) => {
         await browser.close();
         return {
             status: "error",
-            message: "OneTimePass was wrong or required",
+            message: "OneTimePass was wrong or missing",
             data: "",
         };
     }

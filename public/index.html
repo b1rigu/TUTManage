@@ -35,7 +35,7 @@
             <h1 class="text-center text-lg-start">CLASS CIRRICULUM</h1>
         </div>
         <div class="container p-2">
-            <div class="row align-items-center" style="min-height: 100px;">
+            <div class="row align-items-center" style="min-height: 100px">
                 <div id="update-class-data-div" class="my-2 col-12 col-lg-4 text-center">
                     <button
                         type="button"
@@ -118,7 +118,11 @@
                                     >
                                         Add new
                                     </button>
-                                    <button class="btn btn-primary loading w-100" type="button" disabled>
+                                    <button
+                                        class="btn btn-primary loading w-100"
+                                        type="button"
+                                        disabled
+                                    >
                                         <span
                                             class="spinner-border spinner-border-sm"
                                             aria-hidden="true"
@@ -178,34 +182,33 @@
                         <div class="nav nav-tabs mt-1" id="nav-tab-refetch" role="tablist">
                             <button
                                 class="nav-link active"
-                                id="nav-manual-method-btn"
-                                data-bs-toggle="tab"
-                                data-bs-target="#nav-manual-method"
-                                type="button"
-                                role="tab"
-                                aria-controls="tab-manual-method"
-                                aria-selected="true"
-                            >
-                                Manual
-                            </button>
-                            <button
-                                class="nav-link"
                                 id="nav-auto-method-btn"
                                 data-bs-toggle="tab"
                                 data-bs-target="#nav-auto-method"
                                 type="button"
                                 role="tab"
                                 aria-controls="nav-auto-method"
-                                aria-selected="false"
-                                disabled
+                                aria-selected="true"
                             >
-                                Auto (disabled currently)
+                                Auto from Kyomu
+                            </button>
+                            <button
+                                class="nav-link"
+                                id="nav-manual-method-btn"
+                                data-bs-toggle="tab"
+                                data-bs-target="#nav-manual-method"
+                                type="button"
+                                role="tab"
+                                aria-controls="tab-manual-method"
+                                aria-selected="false"
+                            >
+                                Manual
                             </button>
                         </div>
                     </nav>
                     <div class="tab-content" id="refetch-nav-content">
                         <div
-                            class="tab-pane fade show active"
+                            class="tab-pane fade"
                             id="nav-manual-method"
                             role="tabpanel"
                             aria-labelledby="nav-manual-method-btn"
@@ -255,7 +258,7 @@
                             </div>
                         </div>
                         <div
-                            class="tab-pane fade"
+                            class="tab-pane fade show active"
                             id="nav-auto-method"
                             role="tabpanel"
                             aria-labelledby="nav-manual-method-btn"

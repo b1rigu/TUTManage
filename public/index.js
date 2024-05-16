@@ -426,6 +426,7 @@ async function updateClassDataOnDatabase(classData, previousClassData) {
 
         if (res.status == 200) {
             currentClassDataCache = classData;
+            bootstrap.Modal.getOrCreateInstance("#refreshModal").hide();
         } else {
             currentClassDataCache = previousClassData;
             const error = await res.text();
@@ -436,13 +437,11 @@ async function updateClassDataOnDatabase(classData, previousClassData) {
                 }
             } else if (res.status == 400) {
                 bootstrap.Modal.getOrCreateInstance("#editModal").hide();
-                bootstrap.Modal.getOrCreateInstance("#refreshModal").hide();
                 showToast(error);
                 currentClassDataCache = [];
                 logout();
             } else {
                 bootstrap.Modal.getOrCreateInstance("#editModal").hide();
-                bootstrap.Modal.getOrCreateInstance("#refreshModal").hide();
                 showToast(error);
             }
         }
@@ -568,42 +567,53 @@ async function getClassesManual(e) {
 }
 
 async function getClassesAuto(e) {
-    // Currently not working on vercel free plan
     e.preventDefault();
-    document.getElementById("total-credits").innerHTML = "0";
-    const table = document.getElementById("cirriculum-table").querySelector("tbody");
-    table.innerHTML = "";
     const kyomuUsername = document.getElementById("kyomuUsername").value;
     const kyomuPassword = document.getElementById("kyomuPassword").value;
     const onetimepass = document.getElementById("onetimepass").value;
-    localStorage.setItem("kyomuUsername", kyomuUsername);
-    localStorage.setItem("kyomuPassword", kyomuPassword);
+    if (
+        kyomuPassword &&
+        kyomuPassword &&
+        onetimepass &&
+        kyomuPassword != "" &&
+        kyomuPassword != "" &&
+        onetimepass != ""
+    ) {
+        document.getElementById("total-credits").innerHTML = "0";
+        const table = document.getElementById("cirriculum-table").querySelector("tbody");
+        table.innerHTML = "";
+        document.getElementById("onetimepass").value = "";
 
-    setLoadingStatus(true);
-    const res = await fetch("/get-classes", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            username: kyomuUsername,
-            password: kyomuPassword,
-            onetimepass,
-        }),
-    });
-    setLoadingStatus(false);
+        setLoadingStatus(true);
+        const res = await fetch("/get-classes", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                username: kyomuUsername,
+                password: kyomuPassword,
+                onetimepass,
+            }),
+        });
+        setLoadingStatus(false);
 
-    const resJson = await res.json();
-    if (resJson.status == "success") {
-        const data = resJson.data;
-        if (!verifyData(data)) {
-            showToast("No class selected or failed");
-            return;
+        const resJson = await res.json();
+        if (resJson.status == "success") {
+            localStorage.setItem("kyomuUsername", kyomuUsername);
+            localStorage.setItem("kyomuPassword", kyomuPassword);
+            const data = resJson.data;
+            if (!verifyData(data)) {
+                showToast("No class selected or failed");
+                return;
+            }
+            await processFetchedClassData(data);
+            setDataToTable(currentClassDataCache);
+        } else {
+            showToast(resJson.message);
         }
-        await processFetchedClassData(data);
-        setDataToTable(currentClassDataCache);
     } else {
-        showToast(resJson.message);
+        showToast("Some fields are empty");
     }
 }
 

@@ -67,6 +67,10 @@ function setLoginStatusFront() {
         document.getElementById("cirriculum-table").querySelector("tbody").innerHTML = "";
         document.getElementById("total-credits").innerHTML = "0";
         document.getElementById("update-class-data-div").style.display = "none";
+        localStorage.removeItem("kyomuUsername");
+        localStorage.removeItem("kyomuPassword");
+        document.getElementById("kyomuUsername").value = "";
+        document.getElementById("kyomuPassword").value = "";
     }
 }
 

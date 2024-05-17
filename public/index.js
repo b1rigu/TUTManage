@@ -344,9 +344,17 @@ async function signup(e) {
     e.preventDefault();
     const database_username_signup = document.getElementById("database_username_signup").value;
     const database_password_signup = document.getElementById("database_password_signup").value;
-    document.getElementById("database_password_signup").value = "";
+    const database_password_signup_confirm = document.getElementById(
+        "database_password_signup_confirm"
+    ).value;
 
-    if (database_username_signup && database_password_signup) {
+    if (database_username_signup && database_password_signup && database_password_signup_confirm) {
+        if (database_password_signup != database_password_signup_confirm) {
+            showToast("Passwords do not match");
+            return setLoadingStatus(false);
+        }
+        document.getElementById("database_password_signup").value = "";
+        document.getElementById("database_password_signup_confirm").value = "";
         setLoadingStatus(true);
         const res = await fetch("/create-account", {
             method: "POST",

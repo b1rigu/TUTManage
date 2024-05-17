@@ -307,7 +307,11 @@ async function resetPassword(e) {
     const newPassword = document.getElementById("new-password").value;
     const newPasswordConfirm = document.getElementById("new-password-confirm").value;
 
-    if (resetEmail && newPassword && newPasswordConfirm && newPassword == newPasswordConfirm) {
+    if (resetEmail && newPassword && newPasswordConfirm) {
+        if (newPassword != newPasswordConfirm) {
+            showToast("Passwords do not match");
+            return setLoadingStatus(false);
+        }
         document.getElementById("new-password").value = "";
         document.getElementById("new-password-confirm").value = "";
         setLoadingStatus(true);

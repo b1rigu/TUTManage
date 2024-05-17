@@ -46,6 +46,10 @@ function sendResetEmail(toEmail, resetLink) {
             username: toEmail,
             resetLink: resetLink,
         },
+        asm: {
+            group_id: 33447,
+            groups_to_display: [33447],
+        },
     };
     sgMail.send(msg);
 }

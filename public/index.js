@@ -37,6 +37,26 @@ function createRow() {
     return document.createElement("tr");
 }
 
+function parseJwt(token) {
+    if (token && token.length > 0) {
+        var base64Url = token.split(".")[1];
+        var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        var jsonPayload = decodeURIComponent(
+            window
+                .atob(base64)
+                .split("")
+                .map(function (c) {
+                    return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+                })
+                .join("")
+        );
+
+        return JSON.parse(jsonPayload);
+    }
+
+    return "";
+}
+
 function showToast(text) {
     const alertToast = document.getElementById("alert-toast");
     document.getElementById("alert-toast-msg").innerHTML = text;
@@ -47,8 +67,9 @@ function showToast(text) {
 function setLoginStatusFront() {
     if (isLoggedIn) {
         document.getElementById("login-status").innerHTML = "Logged in as: ";
-        document.getElementById("loggedin-username").innerHTML =
-            localStorage.getItem("database_username");
+        document.getElementById("loggedin-username").innerHTML = parseJwt(
+            localStorage.getItem("database_accessToken")
+        ).email;
         document.getElementById("login-btn-div").innerHTML = `
             <button type="button" class="btn btn-link p-0" onclick="logout()">Logout</button>
         `;
@@ -268,7 +289,6 @@ async function login(e) {
             const loginModal = bootstrap.Modal.getOrCreateInstance("#loginModal");
             loginModal.hide();
 
-            localStorage.setItem("database_username", database_username);
             localStorage.setItem("database_accessToken", resJson.accessToken);
             localStorage.setItem("database_refreshToken", resJson.refreshToken);
             await getDataFromDatabase();
@@ -296,7 +316,6 @@ function logout() {
     });
     localStorage.removeItem("database_accessToken");
     localStorage.removeItem("database_refreshToken");
-    localStorage.removeItem("database_username");
     isLoggedIn = false;
     setLoginStatusFront();
 }
@@ -369,7 +388,6 @@ async function signup(e) {
         setLoadingStatus(false);
 
         if (res.status == 200) {
-            localStorage.setItem("database_username", database_username_signup);
             document.getElementById("database_username").value = database_username_signup;
             document.getElementById("database_password").value = database_password_signup;
             await login(null);

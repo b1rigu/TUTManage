@@ -801,7 +801,8 @@ async function todoDelete(id) {
     }
 }
 
-async function addAndSaveTodoFromUserInput() {
+async function addAndSaveTodoFromUserInput(e) {
+    e.preventDefault();
     const todoInputBox = editModal.querySelector("#add-todo-box");
 
     if (todoInputBox.value == "") return;

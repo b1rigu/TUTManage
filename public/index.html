@@ -106,31 +106,37 @@
                         </div>
                         <div class="mb-3">
                             <label for="add-todo-box" class="col-form-label">Todos:</label>
-                            <div class="row">
-                                <div class="col-8">
-                                    <input type="text" class="form-control" id="add-todo-box" />
+                            <form onsubmit="addAndSaveTodoFromUserInput(event)">
+                                <div class="row">
+                                    <div class="col-8">
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="add-todo-box"
+                                            required
+                                        />
+                                    </div>
+                                    <div class="col-4">
+                                        <button
+                                            type="submit"
+                                            class="btn btn-primary w-100 non-loading"
+                                        >
+                                            Add new
+                                        </button>
+                                        <button
+                                            class="btn btn-primary loading w-100"
+                                            type="button"
+                                            disabled
+                                        >
+                                            <span
+                                                class="spinner-border spinner-border-sm"
+                                                aria-hidden="true"
+                                            ></span>
+                                            <span role="status">Loading...</span>
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="col-4">
-                                    <button
-                                        type="button"
-                                        class="btn btn-primary w-100 non-loading"
-                                        onclick="addAndSaveTodoFromUserInput()"
-                                    >
-                                        Add new
-                                    </button>
-                                    <button
-                                        class="btn btn-primary loading w-100"
-                                        type="button"
-                                        disabled
-                                    >
-                                        <span
-                                            class="spinner-border spinner-border-sm"
-                                            aria-hidden="true"
-                                        ></span>
-                                        <span role="status">Loading...</span>
-                                    </button>
-                                </div>
-                            </div>
+                            </form>
                             <div class="card mt-3">
                                 <div class="card-header">
                                     <div class="d-flex justify-content-between align-items-center">
@@ -214,8 +220,8 @@
                             aria-labelledby="nav-manual-method-btn"
                             tabindex="0"
                         >
-                            <div class="modal-body">
-                                <form>
+                            <form onsubmit="getClassesManual(event)">
+                                <div class="modal-body">
                                     <div class="mb-3">
                                         <label class="form-label">
                                             1. Go to the timetable section of the kyomu website
@@ -229,33 +235,34 @@
                                         <label for="rawhtml" class="col-form-label"
                                             >Raw html:</label
                                         >
-                                        <input type="text" class="form-control" id="rawhtml" />
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="rawhtml"
+                                            required
+                                        />
                                     </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button
-                                    type="button"
-                                    class="btn btn-secondary"
-                                    data-bs-dismiss="modal"
-                                >
-                                    Close
-                                </button>
-                                <button
-                                    type="button"
-                                    class="btn btn-primary non-loading"
-                                    onclick="getClassesManual(event)"
-                                >
-                                    Update
-                                </button>
-                                <button class="btn btn-primary loading" type="button" disabled>
-                                    <span
-                                        class="spinner-border spinner-border-sm"
-                                        aria-hidden="true"
-                                    ></span>
-                                    <span role="status">Updating...</span>
-                                </button>
-                            </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal"
+                                    >
+                                        Close
+                                    </button>
+                                    <button type="submit" class="btn btn-primary non-loading">
+                                        Update
+                                    </button>
+                                    <button class="btn btn-primary loading" type="button" disabled>
+                                        <span
+                                            class="spinner-border spinner-border-sm"
+                                            aria-hidden="true"
+                                        ></span>
+                                        <span role="status">Updating...</span>
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                         <div
                             class="tab-pane fade show active"
@@ -264,8 +271,8 @@
                             aria-labelledby="nav-manual-method-btn"
                             tabindex="0"
                         >
-                            <div class="modal-body">
-                                <form>
+                            <form onsubmit="getClassesAuto(event)">
+                                <div class="modal-body">
                                     <div class="mb-3">
                                         <label for="kyomuUsername" class="col-form-label"
                                             >Kyomu Username:</label
@@ -274,6 +281,7 @@
                                             type="text"
                                             class="form-control"
                                             id="kyomuUsername"
+                                            required
                                         />
                                     </div>
                                     <div class="mb-3">
@@ -284,39 +292,41 @@
                                             type="password"
                                             class="form-control"
                                             id="kyomuPassword"
+                                            required
                                         />
                                     </div>
                                     <div class="mb-3" id="onetimepass-field">
                                         <label for="onetimepass" class="col-form-label"
                                             >One Time Pass:</label
                                         >
-                                        <input type="text" class="form-control" id="onetimepass" />
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="onetimepass"
+                                            required
+                                        />
                                     </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button
-                                    type="button"
-                                    class="btn btn-secondary"
-                                    data-bs-dismiss="modal"
-                                >
-                                    Close
-                                </button>
-                                <button
-                                    type="button"
-                                    class="btn btn-primary non-loading"
-                                    onclick="getClassesAuto(event)"
-                                >
-                                    Update
-                                </button>
-                                <button class="btn btn-primary loading" type="button" disabled>
-                                    <span
-                                        class="spinner-border spinner-border-sm"
-                                        aria-hidden="true"
-                                    ></span>
-                                    <span role="status">Updating...</span>
-                                </button>
-                            </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal"
+                                    >
+                                        Close
+                                    </button>
+                                    <button type="submit" class="btn btn-primary non-loading">
+                                        Update
+                                    </button>
+                                    <button class="btn btn-primary loading" type="button" disabled>
+                                        <span
+                                            class="spinner-border spinner-border-sm"
+                                            aria-hidden="true"
+                                        ></span>
+                                        <span role="status">Updating...</span>
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -384,8 +394,8 @@
                             aria-labelledby="nav-login-btn"
                             tabindex="0"
                         >
-                            <div class="modal-body">
-                                <form>
+                            <form onsubmit="login(event)">
+                                <div class="modal-body">
                                     <div class="mb-3">
                                         <label for="database_username" class="col-form-label"
                                             >Email:</label
@@ -394,6 +404,7 @@
                                             type="text"
                                             class="form-control"
                                             id="database_username"
+                                            required
                                         />
                                     </div>
                                     <div class="mb-3">
@@ -404,33 +415,30 @@
                                             type="password"
                                             class="form-control"
                                             id="database_password"
+                                            required
                                         />
                                     </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button
-                                    type="button"
-                                    class="btn btn-secondary"
-                                    data-bs-dismiss="modal"
-                                >
-                                    Close
-                                </button>
-                                <button
-                                    type="button"
-                                    class="btn btn-primary non-loading"
-                                    onclick="login(event)"
-                                >
-                                    Login
-                                </button>
-                                <button class="btn btn-primary loading" type="button" disabled>
-                                    <span
-                                        class="spinner-border spinner-border-sm"
-                                        aria-hidden="true"
-                                    ></span>
-                                    <span role="status">Logging in...</span>
-                                </button>
-                            </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal"
+                                    >
+                                        Close
+                                    </button>
+                                    <button type="submit" class="btn btn-primary non-loading">
+                                        Login
+                                    </button>
+                                    <button class="btn btn-primary loading" type="button" disabled>
+                                        <span
+                                            class="spinner-border spinner-border-sm"
+                                            aria-hidden="true"
+                                        ></span>
+                                        <span role="status">Logging in...</span>
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                         <div
                             class="tab-pane fade"
@@ -439,8 +447,8 @@
                             aria-labelledby="nav-signup-btn"
                             tabindex="0"
                         >
-                            <div class="modal-body">
-                                <form>
+                            <form onsubmit="signup(event)">
+                                <div class="modal-body">
                                     <div class="mb-3">
                                         <label for="database_username_signup" class="col-form-label"
                                             >Email:</label
@@ -449,6 +457,7 @@
                                             type="text"
                                             class="form-control"
                                             id="database_username_signup"
+                                            required
                                         />
                                     </div>
                                     <div class="mb-3">
@@ -459,6 +468,7 @@
                                             type="password"
                                             class="form-control"
                                             id="database_password_signup"
+                                            required
                                         />
                                     </div>
                                     <div class="mb-3">
@@ -471,33 +481,30 @@
                                             type="password"
                                             class="form-control"
                                             id="database_password_signup_confirm"
+                                            required
                                         />
                                     </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button
-                                    type="button"
-                                    class="btn btn-secondary"
-                                    data-bs-dismiss="modal"
-                                >
-                                    Close
-                                </button>
-                                <button
-                                    type="button"
-                                    class="btn btn-primary non-loading"
-                                    onclick="signup(event)"
-                                >
-                                    Signup
-                                </button>
-                                <button class="btn btn-primary loading" type="button" disabled>
-                                    <span
-                                        class="spinner-border spinner-border-sm"
-                                        aria-hidden="true"
-                                    ></span>
-                                    <span role="status">Signing up...</span>
-                                </button>
-                            </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal"
+                                    >
+                                        Close
+                                    </button>
+                                    <button type="submit" class="btn btn-primary non-loading">
+                                        Signup
+                                    </button>
+                                    <button class="btn btn-primary loading" type="button" disabled>
+                                        <span
+                                            class="spinner-border spinner-border-sm"
+                                            aria-hidden="true"
+                                        ></span>
+                                        <span role="status">Signing up...</span>
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                         <div
                             class="tab-pane fade"
@@ -506,13 +513,18 @@
                             aria-labelledby="nav-reset-btn"
                             tabindex="0"
                         >
-                            <div class="modal-body">
-                                <form>
+                            <form onsubmit="resetPassword(event)">
+                                <div class="modal-body">
                                     <div class="mb-3">
                                         <label for="reset_email" class="col-form-label"
                                             >Email:</label
                                         >
-                                        <input type="text" class="form-control" id="reset-email" />
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="reset-email"
+                                            required
+                                        />
                                     </div>
                                     <div class="mb-3">
                                         <label for="new-password" class="col-form-label"
@@ -522,6 +534,7 @@
                                             type="password"
                                             class="form-control"
                                             id="new-password"
+                                            required
                                         />
                                     </div>
                                     <div class="mb-3">
@@ -532,33 +545,30 @@
                                             type="password"
                                             class="form-control"
                                             id="new-password-confirm"
+                                            required
                                         />
                                     </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button
-                                    type="button"
-                                    class="btn btn-secondary"
-                                    data-bs-dismiss="modal"
-                                >
-                                    Close
-                                </button>
-                                <button
-                                    type="button"
-                                    class="btn btn-primary non-loading"
-                                    onclick="resetPassword(event)"
-                                >
-                                    Send reset password link
-                                </button>
-                                <button class="btn btn-primary loading" type="button" disabled>
-                                    <span
-                                        class="spinner-border spinner-border-sm"
-                                        aria-hidden="true"
-                                    ></span>
-                                    <span role="status">Sending...</span>
-                                </button>
-                            </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal"
+                                    >
+                                        Close
+                                    </button>
+                                    <button type="submit" class="btn btn-primary non-loading">
+                                        Send reset password link
+                                    </button>
+                                    <button class="btn btn-primary loading" type="button" disabled>
+                                        <span
+                                            class="spinner-border spinner-border-sm"
+                                            aria-hidden="true"
+                                        ></span>
+                                        <span role="status">Sending...</span>
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
